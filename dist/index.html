@@ -146,7 +146,7 @@
       <button class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 19h16M6 16l4-5 3 2 5-7"/></svg>Win themes</button>
       <div class="nav-label">Library</div>
       <button class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 3h11l3 3v15H5zM8 10h8M8 14h8M8 18h5"/></svg>Past reviews</button>
-      <div class="rail-foot"><strong>Sources connected</strong><br>SAM.gov · USAspending · SEC · News</div>
+      <div class="rail-foot"><strong id="sourceHealth">Live research ready</strong><br>USAspending · SAM.gov · GDELT</div>
     </aside>
     <main>
       <header class="topbar">
@@ -155,7 +155,7 @@
       </header>
       <div class="content">
         <div class="heading-row">
-          <div><div class="eyebrow">Agentic Black Hat Review</div><h1>Know how they’ll bid.<br>Decide how we’ll win.</h1><div class="sub">Evidence-backed competitor intelligence for the next gate review.</div></div>
+          <div><div class="eyebrow">Agentic Black Hat Review</div><h1>Know how they’ll bid.<br>Decide how we’ll win.</h1><div class="sub">Run a live, evidence-backed scan of federal award history.</div></div>
           <button class="new-btn" id="newReview">+ New review</button>
         </div>
 
@@ -167,24 +167,23 @@
         </section>
 
         <div class="pipeline" aria-live="polite">
-          <span class="stage done">Opportunity parsed</span><span class="arrow">›</span>
-          <span class="stage done">46 sources scanned</span><span class="arrow">›</span>
-          <span class="stage done">Bidders ranked</span><span class="arrow">›</span>
-          <span class="stage done">Strategies modeled</span><span class="arrow">›</span>
-          <span class="stage active">Gate brief ready</span>
+          <span class="stage done">Opportunity Analyst</span><span class="arrow">›</span>
+          <span class="stage done">Market Researcher</span><span class="arrow">›</span>
+          <span class="stage done">Black Hat Strategist</span><span class="arrow">›</span>
+          <span class="stage active">Evidence Reviewer</span>
         </div>
 
         <section class="summary-grid" aria-label="Decision summary">
-          <div class="metric"><div class="metric-label">Recommendation</div><div class="recommend"><div class="go-ring">BID</div><div><div class="metric-value">Proceed</div><div class="metric-note">Win path is credible with 3 actions</div></div></div></div>
-          <div class="metric"><div class="metric-label">Win probability</div><div class="metric-value">64%</div><div class="metric-note">↑ 11 points with counters</div></div>
-          <div class="metric"><div class="metric-label">Likely bidders</div><div class="metric-value">4</div><div class="metric-note">2 high-threat rivals</div></div>
-          <div class="metric"><div class="metric-label">Evidence strength</div><div class="metric-value">87%</div><div class="metric-note">39 claims · 46 citations</div></div>
+          <div class="metric"><div class="metric-label">Recommendation</div><div class="recommend"><div class="go-ring" id="bidRing">BID</div><div><div class="metric-value" id="recommendation">Proceed</div><div class="metric-note" id="recommendationNote">Run a live scan to refresh</div></div></div></div>
+          <div class="metric"><div class="metric-label">Win probability</div><div class="metric-value" id="winProbability">64%</div><div class="metric-note">Evidence-weighted estimate</div></div>
+          <div class="metric"><div class="metric-label">Likely bidders</div><div class="metric-value" id="bidderCount">4</div><div class="metric-note" id="threatCount">2 high-threat rivals</div></div>
+          <div class="metric"><div class="metric-label">Evidence strength</div><div class="metric-value" id="evidenceStrength">87%</div><div class="metric-note" id="evidenceCount">Illustrative until refreshed</div></div>
         </section>
 
         <div class="two-col">
           <section class="card">
             <div class="card-head"><div class="card-title">Competitive landscape</div><div class="card-meta">Ranked by fit, access & past performance</div></div>
-            <div class="competitor">
+            <div id="competitorList"><div class="competitor">
               <div class="rank">01</div><div class="company">Booz Allen Hamilton<span>Incumbent · strongest agency access</span></div>
               <div><div class="mini-label">Capability fit</div><div class="bar"><i style="width:94%"></i></div><div class="score">94 / 100</div></div>
               <div><div class="mini-label">Price posture</div><div class="bar green"><i style="width:68%"></i></div><div class="score">Premium</div></div>
@@ -207,16 +206,15 @@
               <div><div class="mini-label">Capability fit</div><div class="bar"><i style="width:76%"></i></div><div class="score">76 / 100</div></div>
               <div><div class="mini-label">Price posture</div><div class="bar green"><i style="width:83%"></i></div><div class="score">Aggressive</div></div>
               <span class="badge med">Medium</span><span class="chev">›</span>
-            </div>
-            <div class="footer-row"><span class="demo-note">Illustrative demo data · every production claim links to source evidence</span><button class="export" id="exportBrief">Export gate brief ↓</button></div>
+            </div></div>
+            <div class="footer-row"><span class="demo-note" id="dataMode">Illustrative data shown · run a review for live results</span><button class="export" id="exportBrief">Export gate brief ↓</button></div>
           </section>
 
           <section class="card">
             <div class="card-head"><div class="card-title">How we win</div><div class="card-meta">Top recommended counters</div></div>
-            <div class="insight"><div class="insight-top"><h3>1. Turn incumbent scale into transition risk</h3><span class="source">6 sources</span></div><p>Lead with a 30-day transition plan and named key personnel. Ghost the incumbent’s delivery sprawl—not its technical capability.</p></div>
-            <div class="insight"><div class="insight-top"><h3>2. Make price predictability the discriminator</h3><span class="source">9 sources</span></div><p>Offer a modular labor mix with explicit automation savings. Neutralize Guidehouse’s likely low-price posture with lower execution risk.</p></div>
-            <div class="insight"><div class="insight-top"><h3>3. Prove domain depth, not generic transformation</h3><span class="source">5 sources</span></div><p>Anchor each win theme in agency-specific outcomes and two directly comparable past performances.</p></div>
-            <div class="insight"><div class="insight-top"><h3>Predicted buyer priorities</h3><span class="source">87% confidence</span></div><p>Mission continuity · measurable automation · talent retention · transparent governance</p></div>
+            <div id="strategyList"><div class="insight"><div class="insight-top"><h3>1. Turn incumbent scale into transition risk</h3><span class="source">Inference</span></div><p>Lead with a 30-day transition plan and named key personnel. Ghost the incumbent’s delivery sprawl—not its technical capability.</p></div>
+            <div class="insight"><div class="insight-top"><h3>2. Make price predictability the discriminator</h3><span class="source">Inference</span></div><p>Offer a modular labor mix with explicit automation savings. Neutralize a low-price posture with lower execution risk.</p></div>
+            <div class="insight"><div class="insight-top"><h3>3. Prove domain depth, not generic transformation</h3><span class="source">Inference</span></div><p>Anchor each win theme in agency-specific outcomes and two directly comparable past performances.</p></div></div>
             <div class="footer-row"><span class="demo-note">Decision rationale is traceable</span><button class="export" id="showRationale">View rationale →</button></div>
           </section>
         </div>
@@ -228,20 +226,54 @@
     const run = document.getElementById('runReview');
     const toast = document.getElementById('toast');
     const stages = [...document.querySelectorAll('.stage')];
-    function say(message) { toast.textContent = message; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2600); }
-    run.addEventListener('click', () => {
+    let latestReport = null;
+    function esc(value) { return String(value ?? '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
+    function say(message) { toast.textContent = message; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 3200); }
+    function renderReport(report) {
+      latestReport = report;
+      const d = report.decision;
+      document.getElementById('recommendation').textContent = d.recommendation;
+      document.getElementById('recommendationNote').textContent = `${d.topThreats} high-threat rival${d.topThreats === 1 ? '' : 's'} detected`;
+      document.getElementById('bidRing').textContent = d.recommendation === 'Proceed' ? 'BID' : 'CHECK';
+      document.getElementById('winProbability').textContent = `${d.winProbability}%`;
+      document.getElementById('bidderCount').textContent = d.bidderCount;
+      document.getElementById('threatCount').textContent = `${d.topThreats} high-threat rival${d.topThreats === 1 ? '' : 's'}`;
+      document.getElementById('evidenceStrength').textContent = `${d.evidenceStrength}%`;
+      document.getElementById('evidenceCount').textContent = `${d.evidenceCount} evidence items checked`;
+      document.getElementById('dataMode').textContent = `Live ${report.meta.mode} · ${new Date(report.meta.generatedAt).toLocaleString()}`;
+      document.getElementById('sourceHealth').textContent = 'Live research complete';
+      document.getElementById('competitorList').innerHTML = report.competitors.map((c, i) => `<div class="competitor"><div class="rank">${String(i + 1).padStart(2,'0')}</div><div class="company">${esc(c.name)}<span>${esc(c.evidence.fact)}</span></div><div><div class="mini-label">Market signal</div><div class="bar"><i style="width:${c.score}%"></i></div><div class="score">${c.score} / 100</div></div><div><div class="mini-label">Agency obligations</div><div class="bar green"><i style="width:${Math.min(100,c.score - 5)}%"></i></div><div class="score">${esc(c.amountLabel)}</div></div><span class="badge ${c.threat === 'High threat' ? 'high' : 'med'}">${esc(c.threat)}</span><a class="chev" href="${esc(c.evidence.url)}" target="_blank" rel="noopener" aria-label="Open USAspending evidence">›</a></div>`).join('');
+      document.getElementById('strategyList').innerHTML = report.strategies.map((s, i) => `<div class="insight"><div class="insight-top"><h3>${i + 1}. ${esc(s.title)}</h3><span class="source">${s.confidence}% confidence</span></div><p>${esc(s.text)}</p><p class="demo-note">${esc(s.basis)}</p></div>`).join('');
+      stages.forEach((stage, i) => { stage.className = 'stage done'; stage.textContent = report.agents[i]?.name || stage.textContent; });
+    }
+    run.addEventListener('click', async () => {
+      const payload = { opportunity: document.getElementById('opportunity').value, agency: document.getElementById('agency').value, incumbent: document.getElementById('incumbent').value };
+      if (!payload.opportunity.trim() || !payload.agency.trim()) { say('Enter an opportunity and agency first.'); return; }
       run.disabled = true; run.textContent = 'Agents researching…';
       stages.forEach((s, i) => { s.className = 'stage'; if (i === 0) s.classList.add('active','pulse'); });
-      let i = 0;
-      const timer = setInterval(() => {
-        stages[i].className = 'stage done'; i++;
-        if (i < stages.length) stages[i].className = 'stage active pulse';
-        else { clearInterval(timer); run.disabled = false; run.textContent = 'Run black hat ↗'; say('Review complete — gate brief is ready.'); }
-      }, 520);
+      let active = 0;
+      const timer = setInterval(() => { stages[active].className = 'stage done'; active = Math.min(active + 1, stages.length - 1); stages[active].className = 'stage active pulse'; }, 1800);
+      try {
+        const response = await fetch('/api/research', { method:'POST', headers:{'content-type':'application/json'}, body:JSON.stringify(payload) });
+        const report = await response.json();
+        if (!response.ok) throw new Error(report.error || 'Research failed.');
+        renderReport(report);
+        say('Live review complete — evidence and strategy are ready.');
+      } catch (error) {
+        say(error.message || 'Research failed. Please try again.');
+        stages.forEach(s => s.classList.remove('pulse'));
+      } finally {
+        clearInterval(timer); run.disabled = false; run.textContent = 'Run black hat ↗';
+      }
     });
     document.getElementById('newReview').addEventListener('click', () => { document.querySelectorAll('input').forEach(x => x.value = ''); document.getElementById('opportunity').focus(); });
-    document.getElementById('exportBrief').addEventListener('click', () => say('Gate brief prepared for export.'));
-    document.getElementById('showRationale').addEventListener('click', () => say('39 claims are backed by 46 source citations.'));
+    document.getElementById('exportBrief').addEventListener('click', () => {
+      if (!latestReport) { say('Run a live review before exporting.'); return; }
+      const blob = new Blob([JSON.stringify(latestReport, null, 2)], {type:'application/json'});
+      const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = 'blackhat-gate-brief.json'; link.click(); URL.revokeObjectURL(link.href);
+      say('Evidence-backed gate brief exported.');
+    });
+    document.getElementById('showRationale').addEventListener('click', () => say(latestReport ? `${latestReport.decision.evidenceCount} evidence items support this assessment.` : 'Run a live review to generate a traceable rationale.'));
   </script>
 </body>
 </html>

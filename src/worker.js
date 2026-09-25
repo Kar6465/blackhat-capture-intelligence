@@ -1,4 +1,5 @@
-const INDEX_HTML = __INDEX_HTML__;
+const APP_HTML = __APP_HTML__;
+const LANDING_HTML = __LANDING_HTML__;
 
 const JSON_HEADERS = {
   "content-type": "application/json; charset=utf-8",
@@ -6,8 +7,21 @@ const JSON_HEADERS = {
   "x-content-type-options": "nosniff",
 };
 
+const NDJSON_HEADERS = {
+  "content-type": "application/x-ndjson; charset=utf-8",
+  "cache-control": "no-store",
+  "x-content-type-options": "nosniff",
+};
+
 function json(data, status = 200) {
   return new Response(JSON.stringify(data), { status, headers: JSON_HEADERS });
+}
+
+class RequestError extends Error {
+  constructor(message, status) {
+    super(message);
+    this.status = status;
+  }
 }
 
 function clean(value, max = 180) {
@@ -46,6 +60,14 @@ async function fetchJson(url, options = {}, timeoutMs = 18000) {
 function keywordsFrom(text) {
   const stop = new Set(["and", "the", "for", "with", "from", "into", "total", "small", "business", "contract", "services", "service", "opportunity", "solicitation"]);
   return [...new Set(clean(text).toLowerCase().replace(/[^a-z0-9 ]/g, " ").split(/\s+/).filter((word) => word.length >= 4 && !stop.has(word)))].slice(0, 3);
+}
+
+function validateResearchInput(input) {
+  const opportunity = clean(input?.opportunity);
+  const agency = clean(input?.agency);
+  const incumbent = clean(input?.incumbent, 120);
+  if (!opportunity || !agency) throw new RequestError("Opportunity and agency are required.", 400);
+  return { opportunity, agency, incumbent };
 }
 
 async function resolveAgency(agency) {
@@ -116,7 +138,7 @@ async function searchNews(name, agency) {
   });
   try {
     const data = await fetchJson(`https://api.gdeltproject.org/api/v2/doc/doc?${params}`, {
-      headers: { "user-agent": "BlackHatCapture/0.2 research@invalid.local" },
+      headers: { "user-agent": "BlackHatCapture-Research/0.4 research@invalid.local" },
     }, 9000);
     return (data.articles || []).slice(0, 5).map((item) => ({
       title: clean(item.title, 180),
@@ -124,6 +146,39 @@ async function searchNews(name, agency) {
       source: clean(item.domain || item.sourcecountry || "News source", 80),
       date: item.seendate || null,
     }));
+  } catch (_) {
+    return [];
+  }
+}
+
+// Public SEC EDGAR full-text search — no API key required. Best-effort like
+// searchNews(): any failure returns an empty list rather than breaking a run.
+async function searchSecFilings(name) {
+  if (!name) return [];
+  const params = new URLSearchParams({ q: `"${name}"`, forms: "10-K,10-Q,8-K" });
+  try {
+    const data = await fetchJson(`https://efts.sec.gov/LATEST/search-index?${params}`, {
+      headers: { "user-agent": "BlackHatCapture-Research/0.4 research@invalid.local" },
+    }, 9000);
+    const hits = data.hits?.hits || [];
+    return hits
+      .slice(0, 5)
+      .map((hit) => {
+        const source = hit._source || {};
+        const cik = String(source.ciks?.[0] || "").replace(/^0+/, "");
+        const accession = String(source.adsh || "").replace(/-/g, "");
+        const filename = String(hit._id || "").split(":")[1] || "";
+        const url = cik && accession && filename
+          ? `https://www.sec.gov/Archives/edgar/data/${cik}/${accession}/${filename}`
+          : null;
+        return {
+          company: clean((source.display_names || [])[0] || name, 140),
+          form: source.form || null,
+          filedAt: source.file_date || null,
+          url,
+        };
+      })
+      .filter((item) => item.url);
   } catch (_) {
     return [];
   }
@@ -177,18 +232,143 @@ function createStrategies(competitors, agency, incumbent) {
   ];
 }
 
-async function runResearch(input, env) {
-  const opportunity = clean(input.opportunity);
-  const requestedAgency = clean(input.agency);
-  const incumbent = clean(input.incumbent, 120);
-  if (!opportunity || !requestedAgency) throw new Error("Opportunity and agency are required.");
+function createSummary(competitors, agency, counts) {
+  const totalEvidence = counts.competitors + counts.news + counts.sam + counts.sec;
+  const leader = competitors[0];
+  const leaderText = leader
+    ? `${leader.name} shows the strongest market signal (${leader.amountLabel} in agency obligations, ${leader.threat.toLowerCase()}).`
+    : "No dominant competitor emerged from award history.";
+  return `${competitors.length} likely bidders were ranked from ${totalEvidence} evidence items gathered against ${agency}'s public award history. ${leaderText} Review each ranked entry's cited source before treating this as a final capture position.`;
+}
+
+const STRATEGY_SCHEMA = {
+  type: "object",
+  properties: {
+    strategies: {
+      type: "array",
+      minItems: 3,
+      maxItems: 3,
+      items: {
+        type: "object",
+        properties: {
+          title: { type: "string" },
+          text: { type: "string" },
+          confidence: { type: "integer", minimum: 50, maximum: 95 },
+          basis: { type: "string" },
+        },
+        required: ["title", "text", "confidence", "basis"],
+        additionalProperties: false,
+      },
+    },
+  },
+  required: ["strategies"],
+  additionalProperties: false,
+};
+
+const SUMMARY_SCHEMA = {
+  type: "object",
+  properties: { summary: { type: "string" } },
+  required: ["summary"],
+  additionalProperties: false,
+};
+
+// Shared plumbing for every optional model-backed step. Returns null on any
+// failure — no key, timeout, malformed output — so a caller can always treat
+// null as "fall back to the deterministic path." Never throws.
+async function callModelJSON({ instructions, input, schema, schemaName, env, timeoutMs = 12000 }) {
+  if (!env.OPENAI_API_KEY) return null;
+  const model = env.OPENAI_MODEL || "gpt-4o-mini";
+  const payload = {
+    model,
+    instructions,
+    input,
+    text: { format: { type: "json_schema", name: schemaName, schema, strict: true } },
+  };
+  try {
+    const data = await fetchJson("https://api.openai.com/v1/responses", {
+      method: "POST",
+      headers: { "content-type": "application/json", authorization: `Bearer ${env.OPENAI_API_KEY}` },
+      body: JSON.stringify(payload),
+    }, timeoutMs);
+    const text = data.output_text
+      || data.output?.flatMap((item) => item.content || []).find((part) => part.type === "output_text")?.text;
+    return text ? JSON.parse(text) : null;
+  } catch (_) {
+    return null;
+  }
+}
+
+// Optional: the Black Hat Strategist reasons over evidence with a real model call
+// instead of the fixed templates above. Off by default; requires OPENAI_API_KEY.
+// Any failure (no key, timeout, bad output) falls back to createStrategies() so a
+// research run never breaks on a model outage.
+async function generateStrategiesWithModel(competitors, agency, opportunity, incumbent, env) {
+  const evidenceSummary = competitors
+    .map((c, i) => `${i + 1}. ${c.name} — ${c.amountLabel} in agency obligations over the last 5 years (market-signal score ${c.score}/100, ${c.threat}).`)
+    .join("\n");
+  const instructions = [
+    "You are the Black Hat Strategist inside a federal capture-intelligence tool.",
+    "Using ONLY the evidence given, produce exactly 3 counter-strategies a bid team could use to win.",
+    "Every strategy is a labeled INFERENCE, not a fact: never claim a company has confirmed it will bid,",
+    "and never invent contract vehicles, incumbents, award values, or performance ratings beyond what is given.",
+    "Keep 'text' to 1-2 concrete, actionable sentences. 'basis' names the inference type in a few words",
+    "(e.g. 'Capture strategy inference').",
+  ].join(" ");
+  const input = `Opportunity: ${opportunity}\nAgency: ${agency}\nIncumbent: ${incumbent || "unknown"}\n\nRanked competitors (from USAspending award history — market signal, not confirmed bidders):\n${evidenceSummary}`;
+  const parsed = await callModelJSON({ instructions, input, schema: STRATEGY_SCHEMA, schemaName: "strategies", env });
+  if (!parsed) return null;
+  const strategies = (parsed.strategies || []).slice(0, 3).map((s) => ({
+    title: clean(s.title, 120),
+    text: clean(s.text, 320),
+    confidence: clamp(Math.round(Number(s.confidence) || 70), 50, 95),
+    basis: clean(s.basis, 80),
+  }));
+  return strategies.length === 3 ? strategies : null;
+}
+
+// Optional: the Evidence Reviewer writes one evidence-bound gate-review summary
+// paragraph instead of the fixed sentence template below. Same optional/fallback
+// contract as the Strategist above — never throws, never breaks a run.
+async function generateSummaryWithModel(competitors, agency, opportunity, incumbent, counts, env) {
+  const evidenceSummary = competitors
+    .map((c, i) => `${i + 1}. ${c.name} — ${c.amountLabel}, ${c.threat}.`)
+    .join("\n");
+  const instructions = [
+    "You are the Evidence Reviewer inside a federal capture-intelligence tool.",
+    "Using ONLY the evidence given, write one paragraph (2-4 sentences) summarizing the gate-review picture for a capture team.",
+    "State only what the evidence supports. Never claim a company has confirmed it will bid, and never invent",
+    "contract vehicles, award values, incumbents, or performance ratings beyond what is given.",
+    "If the evidence is thin, say so plainly instead of padding the summary.",
+  ].join(" ");
+  const input = `Opportunity: ${opportunity}\nAgency: ${agency}\nIncumbent: ${incumbent || "unknown"}\n`
+    + `Evidence gathered: ${counts.competitors} ranked competitors, ${counts.news} news items, ${counts.sam} open opportunities, ${counts.sec} SEC filing references.\n\n`
+    + `Ranked competitors:\n${evidenceSummary}`;
+  const parsed = await callModelJSON({ instructions, input, schema: SUMMARY_SCHEMA, schemaName: "gate_review_summary", env });
+  if (!parsed || !parsed.summary) return null;
+  return clean(parsed.summary, 600);
+}
+
+function stageEvent(agent) {
+  return { type: "stage", agent: agent.name, status: agent.status, detail: agent.detail };
+}
+
+// The orchestrator. Four logical agent stages, run sequentially/in parallel in
+// a single request — not independent processes. `emit(event)` (optional) is
+// called at each stage transition so the caller can stream real progress to
+// the client instead of faking it. See AGENTS.md "Agent architecture".
+async function runResearch(input, env, emit = () => {}) {
+  const { opportunity, agency: requestedAgency, incumbent } = validateResearchInput(input);
 
   const agents = [
     { name: "Opportunity Analyst", status: "complete", detail: "Inputs normalized and research scope established" },
-    { name: "Market Researcher", status: "running", detail: "Querying federal award history" },
+    { name: "Market Researcher", status: "queued", detail: "Waiting to query federal award history" },
     { name: "Black Hat Strategist", status: "queued", detail: "Waiting for ranked competitors" },
     { name: "Evidence Reviewer", status: "queued", detail: "Waiting for evidence package" },
   ];
+  emit(stageEvent(agents[0]));
+
+  agents[1] = { name: "Market Researcher", status: "running", detail: "Querying federal award history" };
+  emit(stageEvent(agents[1]));
 
   let agency = requestedAgency;
   try { agency = await resolveAgency(requestedAgency); } catch (_) {}
@@ -198,17 +378,47 @@ async function runResearch(input, env) {
     searchSam(opportunity, env).catch((error) => ({ configured: Boolean(env.SAM_API_KEY), results: [], error: error.message })),
   ]);
   const competitors = rankCompetitors(recipientSearch.data.results, incumbent);
-  if (!competitors.length) throw new Error("No matching federal contract recipients were found. Try the full agency name or a broader opportunity title.");
+  if (!competitors.length) throw new RequestError("No matching federal contract recipients were found. Try the full agency name or a broader opportunity title.", 422);
 
   agents[1] = { name: "Market Researcher", status: "complete", detail: `${competitors.length} likely bidders ranked from USAspending` };
-  agents[2] = { name: "Black Hat Strategist", status: "complete", detail: "Threat posture and counters generated" };
-  const news = await searchNews(competitors[0]?.name, agency);
-  agents[3] = { name: "Evidence Reviewer", status: "complete", detail: `${competitors.length + news.length + sam.results.length} evidence items checked` };
+  emit(stageEvent(agents[1]));
+
+  agents[2] = { name: "Black Hat Strategist", status: "running", detail: "Ranking threat posture and drafting counters" };
+  emit(stageEvent(agents[2]));
+
+  const modelStrategies = await generateStrategiesWithModel(competitors, agency, opportunity, incumbent, env);
+  const strategies = modelStrategies || createStrategies(competitors, agency, incumbent);
+  const strategistMode = modelStrategies ? "model" : "template";
+  agents[2] = {
+    name: "Black Hat Strategist",
+    status: "complete",
+    detail: strategistMode === "model"
+      ? `Threat posture and counters generated by ${env.OPENAI_MODEL || "gpt-4o-mini"}`
+      : "Threat posture and counters generated from deterministic templates",
+  };
+  emit(stageEvent(agents[2]));
+
+  agents[3] = { name: "Evidence Reviewer", status: "running", detail: "Checking sources and assembling the evidence package" };
+  emit(stageEvent(agents[3]));
+
+  const [news, sec] = await Promise.all([
+    searchNews(competitors[0]?.name, agency),
+    searchSecFilings(competitors[0]?.name),
+  ]);
+
+  const counts = { competitors: competitors.length, news: news.length, sam: sam.results.length, sec: sec.length };
+  const modelSummary = await generateSummaryWithModel(competitors, agency, opportunity, incumbent, counts, env);
+  const summary = modelSummary || createSummary(competitors, agency, counts);
+  const reviewerMode = modelSummary ? "model" : "template";
+
+  const evidenceItemsChecked = counts.competitors + counts.news + counts.sam + counts.sec;
+  agents[3] = { name: "Evidence Reviewer", status: "complete", detail: `${evidenceItemsChecked} evidence items checked` };
+  emit(stageEvent(agents[3]));
 
   const topThreats = competitors.filter((item) => item.threat === "High threat").length;
-  const evidenceCount = competitors.length + news.length + sam.results.length;
-  const evidenceStrength = clamp(58 + competitors.length * 5 + Math.min(news.length, 3) * 3 + (sam.results.length ? 8 : 0), 58, 94);
+  const evidenceStrength = clamp(58 + competitors.length * 5 + Math.min(news.length, 3) * 3 + (sam.results.length ? 8 : 0) + (sec.length ? 4 : 0), 58, 96);
   const winProbability = clamp(72 - Math.round((competitors[0]?.score || 70) * 0.14) - topThreats * 3 + (incumbent ? 2 : 0), 35, 78);
+  const modelReasoningUsed = strategistMode === "model" || reviewerMode === "model";
 
   return {
     meta: {
@@ -217,6 +427,8 @@ async function runResearch(input, env) {
       incumbent: incumbent || null,
       generatedAt: new Date().toISOString(),
       mode: sam.configured ? "USAspending + SAM.gov" : "USAspending public data",
+      strategistMode,
+      reviewerMode,
       focusedSearch: recipientSearch.focused,
       keywords: recipientSearch.keywords,
     },
@@ -226,18 +438,26 @@ async function runResearch(input, env) {
       bidderCount: competitors.length,
       topThreats,
       evidenceStrength,
-      evidenceCount,
+      evidenceCount: evidenceItemsChecked,
     },
     competitors,
-    strategies: createStrategies(competitors, agency, incumbent),
+    strategies,
+    summary,
     evidence: {
       sources: [
         { name: "USAspending", status: "connected", url: "https://api.usaspending.gov/", items: competitors.length },
         { name: "SAM.gov", status: sam.configured ? (sam.error ? "error" : "connected") : "key required", url: "https://sam.gov/", items: sam.results.length },
         { name: "GDELT news", status: news.length ? "connected" : "limited", url: "https://www.gdeltproject.org/", items: news.length },
-        { name: "SEC filings", status: "not applicable in this run", url: "https://www.sec.gov/edgar", items: 0 },
+        { name: "SEC EDGAR", status: sec.length ? "connected" : "limited", url: "https://www.sec.gov/edgar/search/", items: sec.length },
+        {
+          name: "Model reasoning (OpenAI)",
+          status: !env.OPENAI_API_KEY ? "key required" : (modelReasoningUsed ? "connected" : "error"),
+          url: "https://platform.openai.com/docs/api-reference/responses",
+          items: (strategistMode === "model" ? strategies.length : 0) + (reviewerMode === "model" ? 1 : 0),
+        },
       ],
       news,
+      sec,
       sam: sam.results.slice(0, 5).map((item) => ({
         title: clean(item.title, 180),
         solicitationNumber: item.solicitationNumber || null,
@@ -254,33 +474,71 @@ async function runResearch(input, env) {
   };
 }
 
+const HTML_SECURITY_HEADERS = {
+  "content-type": "text/html; charset=utf-8",
+  "cache-control": "public, max-age=300",
+  "content-security-policy": "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data:; frame-ancestors 'none'; base-uri 'none'",
+  "x-content-type-options": "nosniff",
+  "referrer-policy": "strict-origin-when-cross-origin",
+};
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     if (request.method === "GET" && url.pathname === "/") {
-      return new Response(INDEX_HTML, {
-        headers: {
-          "content-type": "text/html; charset=utf-8",
-          "cache-control": "public, max-age=300",
-          "content-security-policy": "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data:; frame-ancestors 'none'; base-uri 'none'",
-          "x-content-type-options": "nosniff",
-          "referrer-policy": "strict-origin-when-cross-origin",
-        },
-      });
+      return new Response(LANDING_HTML, { headers: HTML_SECURITY_HEADERS });
+    }
+    if (request.method === "GET" && url.pathname === "/app") {
+      return new Response(APP_HTML, { headers: HTML_SECURITY_HEADERS });
     }
     if (request.method === "GET" && url.pathname === "/api/health") {
-      return json({ ok: true, samConfigured: Boolean(env.SAM_API_KEY), version: "0.2.0" });
+      return json({
+        ok: true,
+        samConfigured: Boolean(env.SAM_API_KEY),
+        modelConfigured: Boolean(env.OPENAI_API_KEY),
+        version: "0.4.0",
+      });
     }
     if (request.method === "POST" && url.pathname === "/api/research") {
       const length = Number(request.headers.get("content-length") || 0);
       if (length > 50000) return json({ error: "Request is too large." }, 413);
+
+      let input;
       try {
-        const input = await request.json();
-        return json(await runResearch(input, env));
-      } catch (error) {
-        const message = error?.name === "AbortError" ? "A public data source timed out. Please try again." : clean(error?.message || "Research failed.", 240);
-        return json({ error: message }, 502);
+        input = await request.json();
+      } catch (_) {
+        return json({ error: "Request body must be valid JSON." }, 400);
       }
+
+      // Validated synchronously, before any streaming starts, so a bad request
+      // still gets a real 400 — see AGENTS.md "Error status codes".
+      try {
+        validateResearchInput(input);
+      } catch (error) {
+        return json({ error: clean(error.message, 240) }, error.status);
+      }
+
+      const encoder = new TextEncoder();
+      const stream = new ReadableStream({
+        async start(controller) {
+          const emit = (event) => controller.enqueue(encoder.encode(`${JSON.stringify(event)}\n`));
+          try {
+            const report = await runResearch(input, env, emit);
+            emit({ type: "result", report });
+          } catch (error) {
+            const status = error instanceof RequestError
+              ? error.status
+              : (error?.name === "AbortError" ? 504 : 502);
+            const message = error?.name === "AbortError"
+              ? "A public data source timed out. Please try again."
+              : clean(error?.message || "Research failed.", 240);
+            emit({ type: "error", message, status });
+          } finally {
+            controller.close();
+          }
+        },
+      });
+      return new Response(stream, { headers: NDJSON_HEADERS });
     }
     return new Response("Not found", { status: 404 });
   },

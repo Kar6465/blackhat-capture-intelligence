@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="BlackHat Capture Intelligence scans public federal award history, ranks likely competitors, and hands capture teams evidence-backed counters before the gate review." />
+  <title>BlackHat Capture Intelligence</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%23070809'/%3E%3Cpath d='M18 38h28l-5-9H23zM14 42h36v5H14z' fill='%23e2632c'/%3E%3Ccircle cx='27' cy='41' r='2.5' fill='%23070809'/%3E%3Ccircle cx='37' cy='41' r='2.5' fill='%23070809'/%3E%3C/svg%3E" />
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #07080a;
+      --panel: #0d1014;
+      --panel-2: #10141a;
+      --line: #1d232c;
+      --line-soft: #171c23;
+      --text: #eef1f4;
+      --muted: #7c8794;
+      --muted-dim: #78818d;
+      --accent: #e2632c;
+      --accent-ink: #14100c;
+      --good: #2fae7a;
+      --good-soft: #12241d;
+      --seq-1: #3f7cc9;
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+      --font-mono: ui-monospace, "SF Mono", "Cascadia Mono", "Roboto Mono", Menlo, Consolas, monospace;
+      --fs-1: .6875rem; --fs-2: .75rem; --fs-3: .8125rem; --fs-4: .9375rem; --fs-5: 1.375rem; --fs-6: 2.5rem; --fs-7: 3.5rem;
+      --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px; --sp-5: 20px; --sp-6: 24px; --sp-7: 28px; --sp-8: 32px; --sp-9: 40px; --sp-10: 48px;
+      font-family: var(--font-sans);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; background: var(--bg); color: var(--text); position: relative; }
+    body::before {
+      content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,.028) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.028) 1px, transparent 1px);
+      background-size: 44px 44px;
+      mask-image: radial-gradient(ellipse 70% 55% at 50% 0%, black 25%, transparent 82%);
+    }
+    a { color: inherit; }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .wrap { position: relative; z-index: 1; max-width: 760px; margin: 0 auto; padding: 0 var(--sp-6); }
+    .wrap-wide { position: relative; z-index: 1; max-width: 1120px; margin: 0 auto; padding: 0 var(--sp-6); }
+
+    header.top { position: sticky; top: 0; z-index: 10; border-bottom: 1px solid var(--line); background: var(--bg); }
+    .top-inner { max-width: 1120px; margin: 0 auto; padding: var(--sp-4) var(--sp-6); display: flex; align-items: center; justify-content: space-between; gap: var(--sp-4); }
+    .brand { display: flex; align-items: center; gap: var(--sp-2); text-decoration: none; }
+    .brand-mark { width: 28px; height: 28px; border-radius: 6px; display: grid; place-items: center; background: var(--accent); color: var(--accent-ink); font-family: var(--font-mono); font-weight: 700; font-size: var(--fs-2); }
+    .brand-name { font-weight: 650; font-size: var(--fs-4); }
+    .top-nav { display: flex; align-items: center; gap: var(--sp-6); }
+    .top-links { display: flex; gap: var(--sp-5); }
+    .top-links a { font-size: var(--fs-3); color: var(--muted); text-decoration: none; }
+    .top-links a:hover { color: var(--text); }
+    .launch { border: 1px solid #7a3a1e; background: var(--accent); color: var(--accent-ink); border-radius: 5px; padding: 9px 14px; font-weight: 650; font-size: var(--fs-3); text-decoration: none; display: inline-block; transition: background-color 120ms ease-out, transform 120ms ease-out; }
+    .launch:hover { background: #ee7040; transform: translateY(-1px); }
+
+    main { padding-top: var(--sp-10); }
+
+    .hero-grid { display: grid; grid-template-columns: 1.15fr 1fr; gap: var(--sp-10); align-items: center; padding-bottom: var(--sp-9); }
+    .eyebrow { color: var(--muted-dim); font-family: var(--font-mono); font-size: var(--fs-2); font-weight: 500; letter-spacing: .1em; text-transform: uppercase; margin: 0 0 var(--sp-4); }
+    h1 { margin: 0 0 var(--sp-5); font-size: clamp(2.25rem, 4.4vw, var(--fs-7)); font-weight: 680; letter-spacing: -.03em; line-height: 1.04; }
+    h1 .accent-line { color: var(--accent); display: block; }
+    .lede { color: var(--muted); font-size: var(--fs-4); line-height: 1.6; max-width: 50ch; margin: 0 0 var(--sp-7); }
+    .cta-row { display: flex; align-items: center; gap: var(--sp-5); flex-wrap: wrap; margin-bottom: var(--sp-8); }
+    .cta-row .launch { padding: 12px 18px; font-size: var(--fs-4); }
+    .secondary-link { font-size: var(--fs-3); color: var(--muted); text-decoration: underline; text-underline-offset: 3px; }
+    .secondary-link:hover { color: var(--text); }
+
+    .boundary { border: 1px solid var(--line); border-left: 2px solid var(--accent); background: var(--panel); border-radius: 6px; padding: var(--sp-4) var(--sp-5); }
+    .boundary p { margin: 0; font-size: var(--fs-3); color: var(--muted); line-height: 1.6; }
+    .boundary strong { color: var(--text); font-weight: 600; }
+
+    .hero-visual { display: flex; flex-direction: column; align-items: center; gap: var(--sp-3); }
+    .radar-shell { position: relative; width: 100%; max-width: 420px; aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle at 50% 50%, rgba(226,99,44,.06), transparent 70%); }
+    #radar { width: 100%; height: 100%; display: block; }
+    .radar-controls { display: flex; align-items: center; gap: var(--sp-3); flex-wrap: wrap; justify-content: center; }
+    .radar-caption { font-family: var(--font-mono); font-size: var(--fs-1); color: var(--muted-dim); text-transform: uppercase; letter-spacing: .05em; margin: 0; }
+    .radar-toggle { background: none; border: 0; font-family: var(--font-mono); font-size: var(--fs-1); text-transform: uppercase; letter-spacing: .05em; padding: 0; }
+
+    .stats-band { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); background: var(--panel); }
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); }
+    .stat { padding: var(--sp-7) var(--sp-5); text-align: center; border-left: 1px solid var(--line); }
+    .stat:first-child { border-left: 0; }
+    .stat-value { font-family: var(--font-mono); font-size: var(--fs-6); font-weight: 650; font-variant-numeric: tabular-nums; }
+    .stat-value .unit { font-size: var(--fs-4); color: var(--muted-dim); margin-left: 2px; }
+    .stat-label { color: var(--muted); font-size: var(--fs-2); margin-top: var(--sp-2); }
+
+    section.block { padding: var(--sp-9) 0; border-top: 1px solid var(--line); }
+    section.block:first-of-type { border-top: 0; }
+    .block h2 { font-size: var(--fs-5); font-weight: 650; letter-spacing: -.01em; margin: 0 0 var(--sp-2); }
+    .block .block-sub { color: var(--muted); font-size: var(--fs-3); margin: 0 0 var(--sp-7); max-width: 60ch; line-height: 1.6; }
+
+    .pipeline-list { list-style: none; margin: 0; padding: 0; }
+    .pipeline-list li { position: relative; display: grid; grid-template-columns: 40px 1fr; gap: var(--sp-4); padding: var(--sp-5) 0; }
+    .pipeline-list li:not(:last-child)::after { content: ""; position: absolute; left: 19px; top: calc(var(--sp-5) + 22px); bottom: calc(var(--sp-5) * -1 + 4px); width: 1px; background: var(--line); }
+    .step-no { font-family: var(--font-mono); font-size: var(--fs-2); color: var(--muted-dim); padding-top: 2px; z-index: 1; }
+    .pipeline-list h3 { margin: 0 0 var(--sp-1); font-size: var(--fs-4); font-weight: 600; }
+    .pipeline-list p { margin: 0; font-size: var(--fs-3); color: var(--muted); line-height: 1.6; max-width: 62ch; }
+
+    .preview-outer { perspective: 1200px; }
+    .preview-frame { border: 1px solid var(--line); border-radius: 10px; background: var(--panel); overflow: hidden; transform: rotateX(0) rotateY(0); transition: transform 200ms ease-out; box-shadow: 0 24px 60px rgba(0,0,0,.4); }
+    .preview-chrome { display: flex; align-items: center; gap: 6px; padding: var(--sp-3) var(--sp-4); border-bottom: 1px solid var(--line); background: #0a0c0f; }
+    .preview-chrome i { width: 8px; height: 8px; border-radius: 50%; background: var(--line); display: block; }
+    .preview-chrome span { margin-left: var(--sp-3); font-family: var(--font-mono); font-size: var(--fs-1); color: var(--muted-dim); }
+    .preview-body { padding: var(--sp-5); }
+    .mock-row { display: grid; grid-template-columns: 32px 1fr .6fr 70px; gap: var(--sp-3); align-items: center; padding: var(--sp-3) 0; border-bottom: 1px solid var(--line-soft); }
+    .mock-row:last-child { border-bottom: 0; }
+    .mock-rank { width: 28px; height: 28px; border: 1px solid var(--line); border-radius: 5px; display: grid; place-items: center; font-family: var(--font-mono); font-size: var(--fs-1); color: var(--muted); }
+    .mock-name { font-size: var(--fs-3); font-weight: 600; }
+    .mock-name span { display: block; font-size: var(--fs-1); color: var(--muted); font-weight: 400; margin-top: 2px; }
+    .mock-bar { height: 4px; border-radius: 2px; background: var(--line); overflow: hidden; }
+    .mock-bar i { display: block; height: 100%; background: var(--seq-1); }
+    .mock-badge { font-family: var(--font-mono); font-size: var(--fs-1); text-transform: uppercase; padding: 3px 6px; border-radius: 4px; justify-self: start; }
+    .mock-badge.high { background: #251314; color: #f0a2a2; }
+    .mock-badge.med { background: #241d10; color: #e7c069; }
+
+    .sources { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: var(--sp-3); }
+    .source-card { border: 1px solid var(--line); background: var(--panel); border-radius: 8px; padding: var(--sp-4); transition: border-color 120ms ease-out; }
+    .source-card:hover { border-color: #333b46; }
+    .source-card .name { font-weight: 600; font-size: var(--fs-3); margin-bottom: var(--sp-2); }
+    .source-card .tag { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: var(--fs-1); text-transform: uppercase; letter-spacing: .03em; color: var(--good); margin-bottom: var(--sp-2); }
+    .source-card .tag::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+    .source-card .tag.optional { color: var(--muted-dim); }
+    .source-card p { margin: 0; font-size: var(--fs-2); color: var(--muted); line-height: 1.55; }
+
+    footer { border-top: 1px solid var(--line); padding: var(--sp-7) 0 var(--sp-9); }
+    .foot-inner { max-width: 1120px; margin: 0 auto; padding: 0 var(--sp-6); display: flex; align-items: center; justify-content: space-between; gap: var(--sp-4); flex-wrap: wrap; }
+    footer .brand-name { font-size: var(--fs-3); }
+    footer nav { display: flex; gap: var(--sp-5); }
+    footer nav a { font-size: var(--fs-3); color: var(--muted); text-decoration: none; }
+    footer nav a:hover { color: var(--text); }
+
+    .reveal { opacity: 0; transform: translateY(18px); transition: opacity 500ms ease-out, transform 500ms ease-out; }
+    .reveal.is-visible { opacity: 1; transform: translateY(0); }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .reveal { transition: none; }
+      .preview-frame { transition: none; }
+    }
+
+    @media (max-width: 900px) {
+      .hero-grid { grid-template-columns: 1fr; }
+      .hero-visual { order: -1; max-width: 320px; margin: 0 auto var(--sp-6); }
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+      .stat:nth-child(3) { border-left: 0; }
+    }
+    @media (max-width: 620px) {
+      main { padding-top: var(--sp-7); }
+      .top-links { display: none; }
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header class="top">
+    <div class="top-inner">
+      <a class="brand" href="/"><div class="brand-mark">BH</div><div class="brand-name">BlackHat</div></a>
+      <nav class="top-nav">
+        <div class="top-links"><a href="#how-it-works">Method</a><a href="#preview">Preview</a><a href="#sources">Data sources</a></div>
+        <a class="launch" href="/app">Launch cockpit</a>
+      </nav>
+    </div>
+  </header>
+  <main>
+    <div class="wrap-wide">
+      <div class="hero-grid">
+        <div class="hero-copy">
+          <p class="eyebrow">Agentic black hat review</p>
+          <h1>See the field<span class="accent-line">before you bid.</span></h1>
+          <p class="lede">BlackHat Capture Intelligence scans public federal award history, ranks the competitors most likely to bid, and hands your capture team evidence-backed counters — before the gate review.</p>
+          <div class="cta-row">
+            <a class="launch" href="/app">Launch cockpit</a>
+            <a class="secondary-link" href="#how-it-works">See how it works ↓</a>
+          </div>
+          <div class="boundary">
+            <p><strong>This is decision support, not source selection.</strong> Every ranked company is a market signal from public award data, never a confirmed bidder. Strategic recommendations are labeled inferences for your capture team to review — not facts.</p>
+          </div>
+        </div>
+        <div class="hero-visual">
+          <div class="radar-shell"><canvas id="radar" role="img" aria-label="Animated radar illustration representing a competitive scan"></canvas></div>
+          <div class="radar-controls">
+            <p class="radar-caption">Illustrative scan — not live data</p>
+            <button class="secondary-link radar-toggle" id="radarToggle" type="button" aria-pressed="false">Pause animation</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stats-band">
+      <div class="wrap-wide stats-grid">
+        <div class="stat"><div class="stat-value"><span data-count="5">0</span><span class="unit">yrs</span></div><div class="stat-label">of award history per scan</div></div>
+        <div class="stat"><div class="stat-value"><span data-count="4">0</span></div><div class="stat-label">live data connectors</div></div>
+        <div class="stat"><div class="stat-value"><span data-count="3">0</span></div><div class="stat-label">counter-strategies per review</div></div>
+        <div class="stat"><div class="stat-value"><span data-count="0">0</span></div><div class="stat-label">fabricated data points, ever</div></div>
+      </div>
+    </div>
+
+    <div class="wrap">
+      <section class="block reveal" id="how-it-works">
+        <h2>Four agents, one research pass</h2>
+        <p class="block-sub">Enter an opportunity, agency, and optional incumbent. A single request runs this pipeline and returns one evidence-backed brief — no waiting on a human analyst to pull award data by hand.</p>
+        <ol class="pipeline-list">
+          <li><span class="step-no">01</span><div><h3>Opportunity Analyst</h3><p>Normalizes the opportunity, agency, and incumbent you enter, and sets the scope for the research pass.</p></div></li>
+          <li><span class="step-no">02</span><div><h3>Market Researcher</h3><p>Pulls five years of award history for that agency from USAspending, focused by keywords from your opportunity title.</p></div></li>
+          <li><span class="step-no">03</span><div><h3>Black Hat Strategist</h3><p>Ranks the likely bidders by spend and access, then drafts counter-strategies — reasoned by a live model call when one is configured, or deterministic capture-strategy templates otherwise.</p></div></li>
+          <li><span class="step-no">04</span><div><h3>Evidence Reviewer</h3><p>Checks every connector's status, counts the evidence actually gathered, and keeps sourced facts separate from labeled inference.</p></div></li>
+        </ol>
+      </section>
+
+      <section class="block reveal" id="preview">
+        <h2>See the brief before you run it</h2>
+        <p class="block-sub">A real excerpt of the cockpit's competitive-landscape card — same components, same tokens, same rules. Run a live review in the cockpit for your own opportunity.</p>
+        <div class="preview-outer">
+          <div class="preview-frame" id="previewFrame">
+            <div class="preview-chrome"><i></i><i></i><i></i><span>/app — competitive landscape</span></div>
+            <div class="preview-body">
+              <div class="mock-row"><div class="mock-rank">01</div><div class="mock-name">Accenture Federal Services<span>Aggressive posture · broad agency access</span></div><div class="mock-bar"><i style="width:85%"></i></div><span class="mock-badge high">High threat</span></div>
+              <div class="mock-row"><div class="mock-rank">02</div><div class="mock-name">HII Mission Technologies<span>Selective pursuit pattern</span></div><div class="mock-bar"><i style="width:77%"></i></div><span class="mock-badge med">Medium</span></div>
+              <div class="mock-row"><div class="mock-rank">03</div><div class="mock-name">Tunnell Consulting<span>Domain specialist · lower spend concentration</span></div><div class="mock-bar"><i style="width:66%"></i></div><span class="mock-badge med">Medium</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="block reveal" id="sources">
+        <h2>What it draws on</h2>
+        <p class="block-sub">Every source is queried server-side, with a bounded timeout, and reported honestly when it's unavailable — nothing is silently swapped for demo data mid-run.</p>
+        <div class="sources">
+          <div class="source-card"><div class="name">USAspending</div><span class="tag">Live · no key needed</span><p>Five-year award and recipient history for the selected agency.</p></div>
+          <div class="source-card"><div class="name">SAM.gov</div><span class="tag optional">Optional</span><p>Open opportunity enrichment, when a SAM.gov API key is configured.</p></div>
+          <div class="source-card"><div class="name">GDELT news</div><span class="tag optional">Best-effort</span><p>Recent news coverage of the top-ranked competitor. May rate-limit.</p></div>
+          <div class="source-card"><div class="name">Model reasoning</div><span class="tag optional">Optional</span><p>OpenAI-backed strategist reasoning over the gathered evidence, when an API key is configured. Falls back to deterministic templates otherwise.</p></div>
+        </div>
+      </section>
+    </div>
+  </main>
+  <footer>
+    <div class="foot-inner">
+      <div class="brand-name">BlackHat Capture Intelligence</div>
+      <nav><a href="/app">Cockpit</a><a href="#how-it-works">Method</a></nav>
+    </div>
+  </footer>
+  <script>
+    const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // ---- Radar hero graphic ----
+    (function () {
+      const canvas = document.getElementById('radar');
+      if (!canvas || !canvas.getContext) return;
+      const ctx = canvas.getContext('2d');
+      const DPR = Math.min(window.devicePixelRatio || 1, 2);
+      const blips = [
+        { angle: 35, radius: 0.85 }, { angle: 110, radius: 0.55 }, { angle: 170, radius: 0.72 },
+        { angle: 235, radius: 0.4 }, { angle: 300, radius: 0.9 }, { angle: 340, radius: 0.62 },
+      ];
+      let sweep = reduceMotion ? 50 : 0;
+
+      function resize() {
+        const size = canvas.clientWidth;
+        canvas.width = size * DPR;
+        canvas.height = size * DPR;
+        ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+      }
+
+      function draw() {
+        const size = canvas.clientWidth;
+        const cx = size / 2, cy = size / 2, R = size / 2 - 6;
+        ctx.clearRect(0, 0, size, size);
+
+        ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+        ctx.lineWidth = 1;
+        for (let i = 1; i <= 4; i++) { ctx.beginPath(); ctx.arc(cx, cy, (R / 4) * i, 0, Math.PI * 2); ctx.stroke(); }
+        ctx.beginPath();
+        ctx.moveTo(cx - R, cy); ctx.lineTo(cx + R, cy);
+        ctx.moveTo(cx, cy - R); ctx.lineTo(cx, cy + R);
+        ctx.stroke();
+
+        const trail = 46;
+        for (let i = 0; i < trail; i++) {
+          const a = sweep - i;
+          const alpha = (1 - i / trail) * 0.22;
+          const rad = (a * Math.PI) / 180;
+          ctx.strokeStyle = `rgba(226,99,44,${alpha})`;
+          ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx + R * Math.cos(rad), cy + R * Math.sin(rad)); ctx.stroke();
+        }
+        ctx.strokeStyle = '#e2632c';
+        ctx.lineWidth = 1.5;
+        const rad0 = (sweep * Math.PI) / 180;
+        ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx + R * Math.cos(rad0), cy + R * Math.sin(rad0)); ctx.stroke();
+
+        blips.forEach((b) => {
+          const rad = (b.angle * Math.PI) / 180;
+          const bx = cx + R * b.radius * Math.cos(rad);
+          const by = cy + R * b.radius * Math.sin(rad);
+          const diff = ((sweep - b.angle) % 360 + 360) % 360;
+          const lit = diff < 34;
+          ctx.beginPath();
+          ctx.fillStyle = lit ? 'rgba(226,99,44,0.95)' : 'rgba(226,99,44,0.35)';
+          ctx.arc(bx, by, lit ? 4.5 : 3, 0, Math.PI * 2);
+          ctx.fill();
+          if (lit) {
+            ctx.beginPath();
+            ctx.strokeStyle = `rgba(226,99,44,${(1 - diff / 34) * 0.55})`;
+            ctx.arc(bx, by, 5 + (diff / 34) * 12, 0, Math.PI * 2);
+            ctx.stroke();
+          }
+        });
+      }
+
+      resize();
+      window.addEventListener('resize', resize);
+
+      let rafId = null;
+      function loop() { draw(); sweep = (sweep + 0.55) % 360; rafId = requestAnimationFrame(loop); }
+      function start() { if (!rafId) loop(); }
+      function stop() { if (rafId) { cancelAnimationFrame(rafId); rafId = null; } }
+
+      const toggle = document.getElementById('radarToggle');
+      if (reduceMotion) {
+        draw();
+        if (toggle) { toggle.textContent = 'Resume animation'; toggle.setAttribute('aria-pressed', 'true'); }
+      } else {
+        start();
+      }
+      if (toggle) {
+        toggle.addEventListener('click', () => {
+          const isRunning = Boolean(rafId);
+          if (isRunning) { stop(); toggle.textContent = 'Resume animation'; toggle.setAttribute('aria-pressed', 'true'); }
+          else { start(); toggle.textContent = 'Pause animation'; toggle.setAttribute('aria-pressed', 'false'); }
+        });
+      }
+    })();
+
+    // ---- Animated stat counters ----
+    document.querySelectorAll('[data-count]').forEach((el) => {
+      const target = Number(el.dataset.count);
+      if (reduceMotion) { el.textContent = target; return; }
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          io.unobserve(el);
+          const duration = 900, start = performance.now();
+          function step(now) {
+            const p = Math.min((now - start) / duration, 1);
+            el.textContent = Math.round(target * (1 - Math.pow(1 - p, 3)));
+            if (p < 1) requestAnimationFrame(step);
+          }
+          requestAnimationFrame(step);
+        });
+      }, { threshold: 0.4 });
+      io.observe(el);
+    });
+
+    // ---- Scroll reveal ----
+    const revealEls = document.querySelectorAll('.reveal');
+    if (reduceMotion) { revealEls.forEach((el) => el.classList.add('is-visible')); }
+    else {
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => { if (entry.isIntersecting) { entry.target.classList.add('is-visible'); io.unobserve(entry.target); } });
+      }, { threshold: 0.12 });
+      revealEls.forEach((el) => io.observe(el));
+    }
+
+    // ---- Product preview tilt ----
+    const previewFrame = document.getElementById('previewFrame');
+    if (previewFrame && !reduceMotion && matchMedia('(hover: hover)').matches) {
+      previewFrame.addEventListener('mousemove', (e) => {
+        const r = previewFrame.getBoundingClientRect();
+        const px = (e.clientX - r.left) / r.width - 0.5;
+        const py = (e.clientY - r.top) / r.height - 0.5;
+        previewFrame.style.transform = `rotateX(${(-py * 4).toFixed(2)}deg) rotateY(${(px * 6).toFixed(2)}deg)`;
+      });
+      previewFrame.addEventListener('mouseleave', () => { previewFrame.style.transform = ''; });
+    }
+  </script>
+</body>
+</html>

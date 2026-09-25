@@ -28,6 +28,19 @@ function clean(value, max = 180) {
   return String(value || "").replace(/[<>]/g, "").replace(/\s+/g, " ").trim().slice(0, max);
 }
 
+// Like clean(), but for prose paragraphs: truncating mid-word/mid-sentence
+// reads as broken output, so trim at the last sentence boundary (falling back
+// to the last word boundary) instead of a hard character cut.
+function cleanParagraph(value, max = 700) {
+  const text = String(value || "").replace(/[<>]/g, "").replace(/\s+/g, " ").trim();
+  if (text.length <= max) return text;
+  const truncated = text.slice(0, max);
+  const sentenceEnd = Math.max(truncated.lastIndexOf(". "), truncated.lastIndexOf("! "), truncated.lastIndexOf("? "));
+  if (sentenceEnd > max * 0.4) return truncated.slice(0, sentenceEnd + 1);
+  const lastSpace = truncated.lastIndexOf(" ");
+  return `${truncated.slice(0, lastSpace > 0 ? lastSpace : max)}…`;
+}
+
 function clamp(value, low, high) {
   return Math.max(low, Math.min(high, value));
 }
@@ -50,7 +63,11 @@ async function fetchJson(url, options = {}, timeoutMs = 18000) {
   try {
     const response = await fetch(url, { ...options, signal: controller.signal });
     const text = await response.text();
-    if (!response.ok) throw new Error(`Source returned ${response.status}`);
+    if (!response.ok) {
+      const error = new Error(`Source returned ${response.status}`);
+      error.status = response.status;
+      throw error;
+    }
     return text ? JSON.parse(text) : {};
   } finally {
     clearTimeout(timer);
@@ -114,7 +131,9 @@ async function searchSam(opportunity, env) {
   if (!env.SAM_API_KEY) return { configured: false, results: [] };
   const now = new Date();
   const start = new Date(now);
-  start.setUTCFullYear(now.getUTCFullYear() - 1);
+  // SAM.gov rejects an exact 1-calendar-year span ("must be no more than 1 year
+  // apart" — the boundary is exclusive: 365 days back 400s, 364 doesn't).
+  start.setUTCDate(now.getUTCDate() - 364);
   const params = new URLSearchParams({
     api_key: env.SAM_API_KEY,
     postedFrom: `${String(start.getUTCMonth() + 1).padStart(2, "0")}/${String(start.getUTCDate()).padStart(2, "0")}/${start.getUTCFullYear()}`,
@@ -311,17 +330,17 @@ async function generateStrategiesWithModel(competitors, agency, opportunity, inc
     "Using ONLY the evidence given, produce exactly 3 counter-strategies a bid team could use to win.",
     "Every strategy is a labeled INFERENCE, not a fact: never claim a company has confirmed it will bid,",
     "and never invent contract vehicles, incumbents, award values, or performance ratings beyond what is given.",
-    "Keep 'text' to 1-2 concrete, actionable sentences. 'basis' names the inference type in a few words",
-    "(e.g. 'Capture strategy inference').",
+    "Keep 'text' to 1-2 concrete, actionable sentences under 280 characters. 'basis' names the inference type",
+    "in a few words, under 60 characters (e.g. 'Capture strategy inference').",
   ].join(" ");
   const input = `Opportunity: ${opportunity}\nAgency: ${agency}\nIncumbent: ${incumbent || "unknown"}\n\nRanked competitors (from USAspending award history — market signal, not confirmed bidders):\n${evidenceSummary}`;
   const parsed = await callModelJSON({ instructions, input, schema: STRATEGY_SCHEMA, schemaName: "strategies", env });
   if (!parsed) return null;
   const strategies = (parsed.strategies || []).slice(0, 3).map((s) => ({
-    title: clean(s.title, 120),
-    text: clean(s.text, 320),
+    title: cleanParagraph(s.title, 120),
+    text: cleanParagraph(s.text, 320),
     confidence: clamp(Math.round(Number(s.confidence) || 70), 50, 95),
-    basis: clean(s.basis, 80),
+    basis: cleanParagraph(s.basis, 80),
   }));
   return strategies.length === 3 ? strategies : null;
 }
@@ -339,13 +358,14 @@ async function generateSummaryWithModel(competitors, agency, opportunity, incumb
     "State only what the evidence supports. Never claim a company has confirmed it will bid, and never invent",
     "contract vehicles, award values, incumbents, or performance ratings beyond what is given.",
     "If the evidence is thin, say so plainly instead of padding the summary.",
+    "Keep the whole paragraph under 550 characters.",
   ].join(" ");
   const input = `Opportunity: ${opportunity}\nAgency: ${agency}\nIncumbent: ${incumbent || "unknown"}\n`
     + `Evidence gathered: ${counts.competitors} ranked competitors, ${counts.news} news items, ${counts.sam} open opportunities, ${counts.sec} SEC filing references.\n\n`
     + `Ranked competitors:\n${evidenceSummary}`;
   const parsed = await callModelJSON({ instructions, input, schema: SUMMARY_SCHEMA, schemaName: "gate_review_summary", env });
   if (!parsed || !parsed.summary) return null;
-  return clean(parsed.summary, 600);
+  return cleanParagraph(parsed.summary, 700);
 }
 
 function stageEvent(agent) {
@@ -375,7 +395,11 @@ async function runResearch(input, env, emit = () => {}) {
 
   const [recipientSearch, sam] = await Promise.all([
     searchRecipients(agency, opportunity),
-    searchSam(opportunity, env).catch((error) => ({ configured: Boolean(env.SAM_API_KEY), results: [], error: error.message })),
+    searchSam(opportunity, env).catch((error) => ({
+      configured: Boolean(env.SAM_API_KEY),
+      results: [],
+      error: error.status === 429 ? "rate limited" : error.message,
+    })),
   ]);
   const competitors = rankCompetitors(recipientSearch.data.results, incumbent);
   if (!competitors.length) throw new RequestError("No matching federal contract recipients were found. Try the full agency name or a broader opportunity title.", 422);
@@ -446,7 +470,7 @@ async function runResearch(input, env, emit = () => {}) {
     evidence: {
       sources: [
         { name: "USAspending", status: "connected", url: "https://api.usaspending.gov/", items: competitors.length },
-        { name: "SAM.gov", status: sam.configured ? (sam.error ? "error" : "connected") : "key required", url: "https://sam.gov/", items: sam.results.length },
+        { name: "SAM.gov", status: sam.configured ? (sam.error === "rate limited" ? "rate limited" : sam.error ? "error" : "connected") : "key required", url: "https://sam.gov/", items: sam.results.length },
         { name: "GDELT news", status: news.length ? "connected" : "limited", url: "https://www.gdeltproject.org/", items: news.length },
         { name: "SEC EDGAR", status: sec.length ? "connected" : "limited", url: "https://www.sec.gov/edgar/search/", items: sec.length },
         {

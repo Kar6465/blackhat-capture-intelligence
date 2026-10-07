@@ -207,7 +207,10 @@ function rankCompetitors(results, incumbent) {
   const cleaned = (results || []).filter((item) => item.name && item.name !== "MULTIPLE RECIPIENTS" && Number(item.amount) > 0);
   const max = Math.max(...cleaned.map((item) => Number(item.amount)), 1);
   return cleaned.slice(0, 8).map((item) => {
-    const isIncumbent = incumbent && item.name.toLowerCase().includes(incumbent.toLowerCase().split(" ")[0]);
+    // Match on the full incumbent name, not just its first word — "General
+    // Dynamics" used to match any "General ___" company via a first-word-only
+    // substring check, handing out an undeserved threat-score bonus.
+    const isIncumbent = incumbent && item.name.toLowerCase().includes(incumbent.toLowerCase());
     const spendSignal = Math.sqrt(Number(item.amount) / max);
     const score = clamp(Math.round(55 + spendSignal * 30 + (isIncumbent ? 12 : 0)), 51, 97);
     return {
@@ -220,7 +223,12 @@ function rankCompetitors(results, incumbent) {
       posture: score >= 88 ? "Incumbent-scale" : score >= 76 ? "Aggressive" : "Selective",
       evidence: {
         source: "USAspending",
-        url: "https://www.usaspending.gov/search",
+        // The recipient search response already carries a profile id — link
+        // straight to that company's own USAspending page instead of a
+        // generic search page when we have it.
+        url: item.recipient_id
+          ? `https://www.usaspending.gov/recipient/${item.recipient_id}/latest`
+          : "https://www.usaspending.gov/search",
         fact: `${item.name} received ${compactMoney(item.amount)} from the selected agency during the five-year analysis window.`,
       },
     };
@@ -453,6 +461,10 @@ async function runResearch(input, env, emit = () => {}) {
       mode: sam.configured ? "USAspending + SAM.gov" : "USAspending public data",
       strategistMode,
       reviewerMode,
+      // The actual model name, only when a model call actually ran — not just
+      // "configured", since a configured-but-failing key must never claim
+      // credit for template output.
+      model: modelReasoningUsed ? (env.OPENAI_MODEL || "gpt-4o-mini") : null,
       focusedSearch: recipientSearch.focused,
       keywords: recipientSearch.keywords,
     },

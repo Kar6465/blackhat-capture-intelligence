@@ -1,6 +1,6 @@
 # BlackHat Capture Intelligence — Agent Guide
 
-This file is the canonical working guide for AI coding agents in this repository.
+This file is the canonical working guide for AI coding agents in this repository. [`README.md`](./README.md) is the human-facing quick-start/overview — keep it in sync with this file's Repository layout, Commands, and API behavior sections when they change, but don't duplicate the rationale/rules that belong here.
 
 ## Product
 
@@ -17,8 +17,11 @@ This is decision support, not an authoritative source-selection system. Never de
 - `scripts/build.mjs` — embeds both `dist/landing.html` and `dist/index.html` into `src/worker.js` and writes the deployable Worker.
 - `scripts/dev.mjs` — local Node adapter for the Worker.
 - `tests/worker.test.mjs` — server smoke and validation tests.
+- `tests/interface.test.mjs` — deterministic client helper and state-reset tests.
+- `Plan.md` — researched interface plan and delivery notes.
 - `.openai/hosting.json` — Sites project identity. Preserve `project_id` exactly.
 - `.env.example` — documented optional environment variables.
+- `README.md` — human-facing quick-start and overview.
 
 ## Commands
 
@@ -146,8 +149,8 @@ Maintain the boundary between facts and inferences:
 - Edit `dist/index.html` for cockpit app behavior and styling; edit `dist/landing.html` for the public marketing page.
 - Rebuild instead of directly editing `dist/server/index.js`.
 - Preserve the current dark, high-density analyst-cockpit design unless a redesign is explicitly requested.
-- The cockpit app (`dist/index.html`) is a tabbed workspace, not a single screen: `Review cockpit` (intake → agent progress → decision → competitors → strategies) is the default view, plus `Competitors` (full-precision roster table), `Win themes` (a capture workboard), and `Past reviews` (locally-stored run history). Views are switched client-side via `data-view` attributes and `showView()` — no server round-trip, no new route. Keep every tab genuinely functional; never add a nav item that does nothing when clicked, and never seed a tab with fabricated data presented as real — bind it to `latestReport` or to `localStorage`, or give it an honest empty state.
-- `localStorage` is used for `Win themes` status and `Past reviews` history (keys `blackhat.workboard.v1` / `blackhat.history.v1`). This is client-only, per-browser state — the worker stays stateless and this data is never sent to the server. Say so explicitly in the UI wherever it's shown (see `.history-caveat`), since capture-sensitive opportunity data persisting anywhere deserves disclosure even when it never leaves the user's device.
+- The cockpit app (`dist/index.html`) is a tabbed workspace, not a single screen: `Review cockpit` (intake → agent progress → decision → competitors → strategies) is the default view, plus `Competitors` (searchable, filterable roster and up-to-three-company comparison), `Evidence` (persistent public records, connector status and inference rationale), `Win themes` (a capture workboard with status, owners and validation notes), and `Past reviews` (locally-stored run history). Views are switched client-side via `data-view` attributes and `showView()` — no server round-trip, no new route. Keep every tab genuinely functional; never add a nav item that does nothing when clicked, and never seed a tab with fabricated data presented as real — bind it to `latestReport` or to `localStorage`, or give it an honest empty state.
+- `localStorage` is used for `Win themes` status, owners and notes and `Past reviews` history (keys `blackhat.workboard.v1` / `blackhat.history.v1`). This is client-only, per-browser state — the worker stays stateless and this data is never sent to the server. Say so explicitly in the UI wherever it's shown (see `.history-caveat`), since capture-sensitive opportunity data persisting anywhere deserves disclosure even when it never leaves the user's device.
 - Maintain mobile responsiveness and accessible labels.
 - Avoid adding dependencies unless they solve a concrete requirement.
 

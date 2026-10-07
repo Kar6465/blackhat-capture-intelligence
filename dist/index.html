@@ -172,6 +172,39 @@
       html { scroll-behavior: auto; }
       * { transition-duration: 0.01ms !important; }
     }
+    /* Review tools use the existing terminal tokens. */
+    [hidden] { display: none !important; }
+    main, .view { min-width: 0; }
+    button:disabled { opacity: .5; cursor: not-allowed; }
+    .review-context, .run-status { border: 1px solid var(--line); border-radius: var(--radius-sm); padding: var(--sp-3) var(--sp-4); margin-bottom: var(--sp-4); color: var(--muted); font-size: var(--fs-3); line-height: 1.6; overflow-wrap: anywhere; }
+    .review-context strong { color: var(--text); }
+    .run-status[data-error="true"] { border-color: var(--warn); color: var(--text); }
+    .toolbar { display: flex; flex-wrap: wrap; align-items: end; gap: var(--sp-3); margin-bottom: var(--sp-4); }
+    .toolbar > div { flex: 1; min-width: 160px; }
+    .toolbar label, .work-card label { display: block; margin-bottom: var(--sp-2); font-size: var(--fs-3); color: var(--muted); }
+    .toolbar input, .toolbar select, .work-card input, .work-card textarea { width: 100%; background: var(--panel); color: var(--text); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: var(--sp-3); font-size: var(--fs-3); }
+    .work-card textarea { min-height: 96px; resize: vertical; }
+    .table-scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); margin-bottom: var(--sp-4); }
+    .table-scroll table { min-width: 720px; }
+    .data-table tbody tr:hover { background: var(--panel-2); }
+    .data-table details { margin-top: var(--sp-2); max-width: 48ch; }
+    .data-table summary { cursor: pointer; color: var(--muted); }
+    .data-table details p { line-height: 1.6; }
+    .data-table input[type="checkbox"] { width: 20px; height: 20px; }
+    .workspace-note { font-size: var(--fs-3); color: var(--muted); line-height: 1.6; margin: 0 0 var(--sp-4); }
+    .workspace-note strong { color: var(--text); }
+    .evidence-grid, .compare-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: var(--sp-4); margin-bottom: var(--sp-4); }
+    .evidence-card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: var(--sp-4); min-width: 0; overflow-wrap: anywhere; }
+    .evidence-card h3 { font-size: var(--fs-4); margin: 0 0 var(--sp-3); }
+    .evidence-card p, .evidence-card li { color: var(--muted); font-size: var(--fs-3); line-height: 1.6; }
+    .evidence-card ul { padding-left: var(--sp-4); }
+    .evidence-card a, .data-table a { color: var(--text); text-underline-offset: 3px; }
+    .section-title { font-size: var(--fs-4); margin: var(--sp-6) 0 var(--sp-3); }
+    .compare-grid dl { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-3); font-size: var(--fs-3); }
+    .compare-grid dt { color: var(--muted); }
+    .compare-grid dd { margin: 0; font-family: var(--font-mono); overflow-wrap: anywhere; }
+    .link-btn { color: var(--text); }
+    .workboard-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); }
     /* View-specific content */
     .view-sub { color: var(--muted); font-size: var(--fs-3); margin: var(--sp-2) 0 var(--sp-6); max-width: 60ch; }
     .empty-state { border: 1px dashed var(--line); border-radius: var(--radius); padding: var(--sp-9) var(--sp-6); text-align: center; color: var(--muted); }
@@ -182,7 +215,7 @@
     table.data-table td { padding: var(--sp-3) var(--sp-4); border-bottom: 1px solid var(--line-soft); font-size: var(--fs-3); vertical-align: top; }
     table.data-table tr:last-child td { border-bottom: 0; }
     table.data-table td.num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; color: var(--muted); }
-    .workboard-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: var(--sp-3); }
+    .workboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: var(--sp-3); }
     .work-card { border: 1px solid var(--line); background: var(--panel); border-radius: var(--radius); padding: var(--sp-4); display: flex; flex-direction: column; gap: var(--sp-3); }
     .work-card h3 { margin: 0; font-size: var(--fs-4); font-weight: 600; }
     .work-card p { margin: 0; font-size: var(--fs-3); color: var(--muted); line-height: 1.55; }
@@ -209,7 +242,7 @@
       .topbar { padding: 0 var(--sp-4); }
       .content { padding: var(--sp-6) var(--sp-4) var(--sp-8); }
       .heading-row { align-items: flex-start; }
-      .new-btn { display: none; }
+      .new-btn { flex-shrink: 0; }
       .intake { grid-template-columns: 1fr; }
       .summary-grid { grid-template-columns: 1fr 1fr; }
       .competitor { grid-template-columns: 34px 1fr 88px 18px; }
@@ -229,6 +262,7 @@
       <div class="nav-label">Workspace</div>
       <button class="nav-item active" data-view="cockpit" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z"/></svg>Review cockpit</button>
       <button class="nav-item" data-view="competitors"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 19V8l8-4 8 4v11M8 19v-5h8v5"/></svg>Competitors</button>
+      <button class="nav-item" data-view="evidence"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 3h14v18H5zM8 8h8M8 12h8M8 16h5"/></svg>Evidence</button>
       <button class="nav-item" data-view="themes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 19h16M6 16l4-5 3 2 5-7"/></svg>Win themes</button>
       <div class="nav-label">Library</div>
       <button class="nav-item" data-view="history"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 3h11l3 3v15H5zM8 10h8M8 14h8M8 18h5"/></svg>Past reviews</button>
@@ -237,9 +271,10 @@
     <main>
       <header class="topbar">
         <div class="crumb">Pursuits / <strong id="crumbLabel">Active review</strong></div>
-        <div class="top-actions"><span class="status">Research agents ready</span><button class="icon-btn" id="connectorStatusBtn" aria-label="Connector status">●</button></div>
+        <div class="top-actions"><span class="status" id="researchStatus">Awaiting review</span><button class="icon-btn" id="connectorStatusBtn" aria-label="Connector status">●</button></div>
       </header>
       <div class="content">
+        <div class="review-context" id="reviewContext">No active review. Enter a pursuit to begin.</div>
 
         <section class="view" data-view="cockpit">
           <div class="heading-row">
@@ -248,66 +283,43 @@
           </div>
 
           <section class="intake" aria-label="Opportunity intake">
-            <div><label for="opportunity">Opportunity or solicitation</label><input id="opportunity" value="GSA OASIS+ Total Small Business — Domain 5" /></div>
-            <div><label for="agency">Agency</label><input id="agency" value="General Services Administration" /></div>
-            <div><label for="incumbent">Known incumbent</label><input id="incumbent" value="Booz Allen Hamilton" /></div>
+            <div><label for="opportunity">Opportunity or solicitation</label><input id="opportunity" placeholder="e.g. OASIS+ professional services" maxlength="240" /></div>
+            <div><label for="agency">Agency</label><input id="agency" placeholder="e.g. General Services Administration" maxlength="160" /></div>
+            <div><label for="incumbent">Known incumbent</label><input id="incumbent" placeholder="Optional company name" maxlength="160" /></div>
             <button class="run-btn" id="runReview">Run black hat</button>
           </section>
 
-          <div class="pipeline" aria-live="polite">
-            <span class="stage done">Opportunity Analyst</span><span class="arrow">›</span>
-            <span class="stage done">Market Researcher</span><span class="arrow">›</span>
-            <span class="stage done">Black Hat Strategist</span><span class="arrow">›</span>
-            <span class="stage active">Evidence Reviewer</span>
+          <div class="pipeline" aria-label="Research stages">
+            <span class="stage">Opportunity Analyst</span><span class="arrow">›</span>
+            <span class="stage">Market Researcher</span><span class="arrow">›</span>
+            <span class="stage">Black Hat Strategist</span><span class="arrow">›</span>
+            <span class="stage">Evidence Reviewer</span>
           </div>
 
+          <div class="run-status" id="runStatus" role="status" aria-live="polite">Ready. Enter an opportunity and agency to research public records.</div>
+
           <section class="summary-grid" aria-label="Decision summary">
-            <div class="metric metric-primary"><div class="metric-label">Recommendation</div><div class="recommend"><div class="go-ring" id="bidRing">BID</div><div><div class="metric-value" id="recommendation">Proceed</div><div class="metric-note" id="recommendationNote">Run a live scan to refresh</div></div></div></div>
-            <div class="metric"><div class="metric-label">Win probability</div><div class="metric-value" id="winProbability">64%</div><div class="metric-note">Evidence-weighted estimate</div></div>
-            <div class="metric"><div class="metric-label">Likely bidders</div><div class="metric-value" id="bidderCount">4</div><div class="metric-note" id="threatCount">2 high-threat rivals</div></div>
-            <div class="metric"><div class="metric-label">Evidence strength</div><div class="metric-value" id="evidenceStrength">87%</div><div class="metric-note" id="evidenceCount">Illustrative until refreshed</div></div>
+            <div class="metric metric-primary"><div class="metric-label">Recommendation</div><div class="recommend"><div class="go-ring" id="bidRing" style="--pct:0">—</div><div><div class="metric-value" id="recommendation">Awaiting review</div><div class="metric-note" id="recommendationNote">No assessment yet</div></div></div></div>
+            <div class="metric"><div class="metric-label">Win probability</div><div class="metric-value" id="winProbability">—</div><div class="metric-note">Heuristic inference · not a forecast</div></div>
+            <div class="metric"><div class="metric-label">Ranked competitors</div><div class="metric-value" id="bidderCount">—</div><div class="metric-note" id="threatCount">Bid intent unconfirmed</div></div>
+            <div class="metric"><div class="metric-label">Evidence strength</div><div class="metric-value" id="evidenceStrength">—</div><div class="metric-note" id="evidenceCount">No evidence collected</div></div>
           </section>
 
           <section class="card summary-card">
-            <div class="card-head"><div class="card-head-text"><div class="card-title">Gate-review summary</div><span class="flag" id="summaryFlag">Illustrative example</span></div><div class="card-meta">Evidence-bound narrative</div></div>
+            <div class="card-head"><div class="card-head-text"><div class="card-title">Gate-review summary</div><span class="flag" id="summaryFlag">Awaiting review</span></div><div class="card-meta">Evidence-bound narrative</div></div>
             <p class="summary-body" id="summaryText">Run a live review to generate an evidence-bound summary of the competitive picture, written from the same evidence shown below.</p>
           </section>
 
           <div class="two-col">
             <section class="card">
-              <div class="card-head"><div class="card-head-text"><div class="card-title">Competitive landscape</div><span class="flag" id="landscapeFlag">Illustrative example</span></div><div class="card-meta">Ranked by fit, access &amp; past performance</div></div>
-              <div id="competitorList"><div class="competitor">
-                <div class="rank">01</div><div class="company">Booz Allen Hamilton<span>Incumbent · strongest agency access</span></div>
-                <div><div class="mini-label">Capability fit</div><div class="bar"><i style="width:94%"></i></div><div class="score">94 / 100</div></div>
-                <div><div class="mini-label">Price posture</div><div class="bar green"><i style="width:68%"></i></div><div class="score">Premium</div></div>
-                <span class="badge high">High threat</span><span class="chev">›</span>
-              </div>
-              <div class="competitor">
-                <div class="rank">02</div><div class="company">Guidehouse<span>Deep civilian-domain delivery bench</span></div>
-                <div><div class="mini-label">Capability fit</div><div class="bar"><i style="width:88%"></i></div><div class="score">88 / 100</div></div>
-                <div><div class="mini-label">Price posture</div><div class="bar green"><i style="width:79%"></i></div><div class="score">Aggressive</div></div>
-                <span class="badge high">High threat</span><span class="chev">›</span>
-              </div>
-              <div class="competitor">
-                <div class="rank">03</div><div class="company">Deloitte<span>Transformation credentials, higher cost base</span></div>
-                <div><div class="mini-label">Capability fit</div><div class="bar"><i style="width:82%"></i></div><div class="score">82 / 100</div></div>
-                <div><div class="mini-label">Price posture</div><div class="bar green"><i style="width:61%"></i></div><div class="score">Premium</div></div>
-                <span class="badge med">Medium</span><span class="chev">›</span>
-              </div>
-              <div class="competitor">
-                <div class="rank">04</div><div class="company">ICF<span>Domain specialist · selective pursuit pattern</span></div>
-                <div><div class="mini-label">Capability fit</div><div class="bar"><i style="width:76%"></i></div><div class="score">76 / 100</div></div>
-                <div><div class="mini-label">Price posture</div><div class="bar green"><i style="width:83%"></i></div><div class="score">Aggressive</div></div>
-                <span class="badge med">Medium</span><span class="chev">›</span>
-              </div></div>
-              <div class="footer-row"><span class="demo-note" id="dataMode">Illustrative data shown · run a review for live results</span><div style="display:flex;gap:var(--sp-2)"><button class="export" id="exportBrief"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 4v11m0 0l-4-4m4 4l4-4M5 19h14"/></svg>JSON</button><button class="export" id="exportMarkdown"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 4v11m0 0l-4-4m4 4l4-4M5 19h14"/></svg>Brief (.md)</button></div></div>
+              <div class="card-head"><div class="card-head-text"><div class="card-title">Competitive landscape</div><span class="flag" id="landscapeFlag">Awaiting review</span></div><div class="card-meta">Ranked by public award signals</div></div>
+              <div id="competitorList"><div class="empty-state"><p>Your competitor landscape will appear here after a live review. Rankings indicate market signals, not confirmed bidders.</p></div></div>
+              <div class="footer-row"><span class="demo-note" id="dataMode">No live report yet</span><div style="display:flex;gap:var(--sp-2)"><button class="export" id="exportBrief" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 4v11m0 0l-4-4m4 4l4-4M5 19h14"/></svg>JSON</button><button class="export" id="exportMarkdown" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 4v11m0 0l-4-4m4 4l4-4M5 19h14"/></svg>Brief (.md)</button></div></div>
             </section>
 
             <section class="card">
-              <div class="card-head"><div class="card-head-text"><div class="card-title">How we win</div><span class="flag" id="strategyFlag">Template</span></div><div class="card-meta">Top recommended counters</div></div>
-              <div id="strategyList"><div class="insight"><div class="insight-top"><h3>1. Turn incumbent scale into transition risk</h3><span class="source">Inference</span></div><p>Lead with a 30-day transition plan and named key personnel. Ghost the incumbent’s delivery sprawl—not its technical capability.</p></div>
-              <div class="insight"><div class="insight-top"><h3>2. Make price predictability the discriminator</h3><span class="source">Inference</span></div><p>Offer a modular labor mix with explicit automation savings. Neutralize a low-price posture with lower execution risk.</p></div>
-              <div class="insight"><div class="insight-top"><h3>3. Prove domain depth, not generic transformation</h3><span class="source">Inference</span></div><p>Anchor each win theme in agency-specific outcomes and two directly comparable past performances.</p></div></div>
+              <div class="card-head"><div class="card-head-text"><div class="card-title">How we win</div><span class="flag" id="strategyFlag">Awaiting review</span></div><div class="card-meta">Top recommended counters</div></div>
+              <div id="strategyList"><div class="empty-state"><p>Run a review to generate evidence-bound strategic inferences.</p></div></div>
               <div class="footer-row"><span class="demo-note">Decision rationale is traceable</span><button class="export" id="showRationale">View rationale</button></div>
             </section>
           </div>
@@ -325,14 +337,29 @@
         <section class="view" data-view="competitors" hidden>
           <h2 class="view-title">Competitor roster</h2>
           <p class="view-sub">Full-precision detail from the latest review, for citing directly in a gate-review brief.</p>
+          <div class="toolbar" id="rosterTools" hidden>
+            <div><label for="competitorSearch">Company or UEI</label><input type="search" id="competitorSearch" placeholder="Search this review" /></div>
+            <div><label for="threatFilter">Threat inference</label><select id="threatFilter"><option value="">All threats</option><option>High threat</option><option>Medium</option><option>Watch</option></select></div>
+            <div><label for="competitorSort">Sort by</label><select id="competitorSort"><option value="rank">Original rank</option><option value="amount">Obligations: highest first</option><option value="score">Signal: highest first</option><option value="name">Company: A to Z</option></select></div>
+            <button class="export" id="resetFilters">Reset filters</button>
+          </div>
+          <p class="workspace-note" id="rosterCount" role="status"></p>
           <div id="competitorsTableWrap">
             <div class="empty-state"><p>Run a review from the cockpit to populate the competitor roster. This view fills in automatically once a live scan completes.</p></div>
           </div>
         </section>
 
+        <section class="view" data-view="evidence" hidden>
+          <h2 class="view-title">Evidence &amp; rationale</h2>
+          <p class="view-sub">Inspect public records, source availability and the inferences drawn from them.</p>
+          <div id="evidenceWrap"><div class="empty-state"><p>Run a review to inspect its sources and reasoning.</p></div></div>
+        </section>
+
         <section class="view" data-view="themes" hidden>
           <h2 class="view-title">Capture workboard</h2>
           <p class="view-sub">Track how your team is acting on each recommended counter-strategy. Saved in this browser only.</p>
+          <p class="history-caveat">Status, owners and notes stay in this browser only. They are never sent to the server or shared with teammates.</p>
+          <p class="workspace-note" id="workboardProgress" role="status"></p>
           <div id="workboardWrap">
             <div class="empty-state"><p>Run a review from the cockpit to generate counter-strategies you can work here.</p></div>
           </div>
@@ -360,6 +387,38 @@
     const AGENT_ORDER = ['Opportunity Analyst', 'Market Researcher', 'Black Hat Strategist', 'Evidence Reviewer'];
     const badgeClass = { 'High threat': 'high', 'Medium': 'med', 'Watch': 'watch' };
     let latestReport = null;
+    let researching = false;
+    const compared = new Set();
+    const emptyCompetitors = document.getElementById('competitorList').innerHTML;
+    const emptyStrategies = document.getElementById('strategyList').innerHTML;
+    const initialLimitations = document.getElementById('caveatsList').innerHTML;
+    function safeURL(value) { try { const url = new URL(value); return ['http:', 'https:'].includes(url.protocol) ? url.href : ''; } catch (_) { return ''; } }
+    function sourceLink(url, label = 'Open source') { const safe = safeURL(url); return safe ? `<a href="${esc(safe)}" target="_blank" rel="noopener noreferrer">${esc(label)}</a>` : '<span>No public link available</span>'; }
+    function setRunStatus(message, error = false) { const el = document.getElementById('runStatus'); el.textContent = message; el.dataset.error = String(error); }
+    function resetReport() {
+      latestReport = null; compared.clear();
+      document.getElementById('reviewContext').textContent = 'No active review. Enter a pursuit to begin.';
+      document.getElementById('recommendation').textContent = 'Awaiting review';
+      document.getElementById('recommendationNote').textContent = 'No assessment yet';
+      ['winProbability','bidderCount','evidenceStrength'].forEach(id => document.getElementById(id).textContent = '—');
+      document.getElementById('threatCount').textContent = 'Bid intent unconfirmed';
+      document.getElementById('evidenceCount').textContent = 'No evidence collected';
+      document.getElementById('bidRing').textContent = '—';
+      document.getElementById('bidRing').style.setProperty('--pct', 0);
+      document.getElementById('competitorList').innerHTML = emptyCompetitors;
+      document.getElementById('strategyList').innerHTML = emptyStrategies;
+      document.getElementById('summaryText').textContent = 'Run a live review to generate an evidence-bound summary.';
+      ['strategyFlag','summaryFlag'].forEach(id => { const el = document.getElementById(id); el.textContent = 'Awaiting review'; el.classList.remove('model'); });
+      document.getElementById('landscapeFlag').textContent = 'Awaiting review';
+      document.getElementById('caveatsList').innerHTML = initialLimitations;
+      document.getElementById('dataMode').textContent = 'No live report yet';
+      document.getElementById('sourceHealth').textContent = 'Live research ready';
+      document.getElementById('researchStatus').textContent = 'Awaiting review';
+      ['exportBrief','exportMarkdown'].forEach(id => document.getElementById(id).disabled = true);
+      stages.forEach((el, i) => { el.className = 'stage'; el.textContent = AGENT_ORDER[i]; });
+      resetRosterFilters(); renderCompetitorsView(); renderEvidence(); renderWorkboard();
+      setRunStatus('Ready. Enter an opportunity and agency to research public records.');
+    }
 
     function esc(value) { return String(value ?? '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
     function say(message) { toast.textContent = message; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 3200); }
@@ -368,7 +427,7 @@
     const views = [...document.querySelectorAll('.view')];
     const navButtons = [...document.querySelectorAll('.nav-item[data-view]')];
     const crumbLabel = document.getElementById('crumbLabel');
-    const VIEW_LABELS = { cockpit: 'Active review', competitors: 'Competitors', themes: 'Win themes', history: 'Past reviews' };
+    const VIEW_LABELS = { cockpit: 'Active review', competitors: 'Competitors', themes: 'Win themes', evidence: 'Evidence', history: 'Past reviews' };
     function showView(name) {
       views.forEach(v => { v.hidden = v.dataset.view !== name; });
       navButtons.forEach(b => {
@@ -379,6 +438,7 @@
       crumbLabel.textContent = VIEW_LABELS[name] || name;
       if (name === 'competitors') renderCompetitorsView();
       if (name === 'themes') renderWorkboard();
+      if (name === 'evidence') renderEvidence();
       if (name === 'history') renderHistory();
     }
     navButtons.forEach(b => b.addEventListener('click', () => showView(b.dataset.view)));
@@ -386,48 +446,77 @@
     // ---- Local storage (client-only; never sent to the server) ----
     const HISTORY_KEY = 'blackhat.history.v1';
     const WORKBOARD_KEY = 'blackhat.workboard.v1';
+    let workboardDraft = null;
+    let workboardUnsaved = false;
     function loadJSON(key, fallback) { try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch (_) { return fallback; } }
-    function saveJSON(key, value) { try { localStorage.setItem(key, JSON.stringify(value)); } catch (_) {} }
-    function loadHistory() { return loadJSON(HISTORY_KEY, []); }
-    function loadWorkboard() { return loadJSON(WORKBOARD_KEY, {}); }
+    function saveJSON(key, value) { try { localStorage.setItem(key, JSON.stringify(value)); return true; } catch (_) { say('Could not save in this browser. Local storage may be full or disabled.'); return false; } }
+    function loadHistory() { const value = loadJSON(HISTORY_KEY, []); return Array.isArray(value) ? value.filter(e => e && typeof e.id === 'string' && typeof e.opportunity === 'string' && typeof e.agency === 'string') : []; }
+    function loadWorkboard() { if (workboardDraft) return workboardDraft; const value = loadJSON(WORKBOARD_KEY, {}); return value && typeof value === 'object' && !Array.isArray(value) ? value : {}; }
     function opportunityKey(report) { return `${report.meta.opportunity}|${report.meta.agency}`.toLowerCase(); }
 
     // ---- Competitors detail view ----
+    function resetRosterFilters() {
+      document.getElementById('competitorSearch').value = '';
+      document.getElementById('threatFilter').value = '';
+      document.getElementById('competitorSort').value = 'rank';
+    }
+    function filteredCompetitors(report, query, threat, sort) {
+      const rows = report.competitors.map((c, rank) => ({ ...c, rank }));
+      const filtered = rows.filter(c => `${c.name} ${c.uei || ''}`.toLowerCase().includes(query.trim().toLowerCase()) && (!threat || c.threat === threat));
+      return filtered.sort((a,b) => sort === 'name' ? a.name.localeCompare(b.name) : sort === 'amount' ? b.amount-a.amount : sort === 'score' ? b.score-a.score : a.rank-b.rank);
+    }
     function renderCompetitorsView() {
       const wrap = document.getElementById('competitorsTableWrap');
-      if (!latestReport || !latestReport.competitors.length) {
-        wrap.innerHTML = '<div class="empty-state"><p>Run a review from the cockpit to populate the competitor roster. This view fills in automatically once a live scan completes.</p></div>';
-        return;
-      }
-      const rows = latestReport.competitors.map((c, i) => `<tr><td class="num">${String(i + 1).padStart(2,'0')}</td><td>${esc(c.name)}</td><td class="num">${esc(c.uei || '—')}</td><td class="num">$${Number(c.amount).toLocaleString()}</td><td class="num">${c.score} / 100</td><td><span class="badge ${badgeClass[c.threat] || 'watch'}">${esc(c.threat)}</span></td></tr>`).join('');
-      wrap.innerHTML = `<table class="data-table"><caption class="sr-only">Ranked competitors from the latest review</caption><thead><tr><th scope="col">Rank</th><th scope="col">Company</th><th scope="col">UEI</th><th scope="col">5-yr obligations</th><th scope="col">Market signal</th><th scope="col">Threat</th></tr></thead><tbody>${rows}</tbody></table>`;
+      document.getElementById('rosterTools').hidden = !latestReport;
+      document.getElementById('rosterCount').textContent = '';
+      if (!latestReport) { wrap.innerHTML = '<div class="empty-state"><p>Run a review from the cockpit to populate the competitor roster.</p></div>'; return; }
+      const rows = filteredCompetitors(latestReport, document.getElementById('competitorSearch').value, document.getElementById('threatFilter').value, document.getElementById('competitorSort').value);
+      document.getElementById('rosterCount').textContent = `${rows.length} of ${latestReport.competitors.length} companies · ${compared.size} selected for comparison (up to 3). Rankings and threats are inferences; bid intent is unconfirmed.`;
+      const body = rows.map(c => `<tr><td><input type="checkbox" data-compare="${c.rank}" aria-label="Compare ${esc(c.name)}" ${compared.has(c.rank) ? 'checked' : ''} ${compared.size >= 3 && !compared.has(c.rank) ? 'disabled' : ''}></td><td class="num">${String(c.rank+1).padStart(2,'0')}</td><td>${esc(c.name)}<details><summary>Public evidence</summary><p>${esc(c.evidence.fact)}</p>${sourceLink(c.evidence.url, c.evidence.source)}</details></td><td class="num">${esc(c.uei || '—')}</td><td class="num">$${Number(c.amount).toLocaleString()}</td><td class="num">${esc(c.score)} / 100</td><td><span class="badge ${badgeClass[c.threat] || 'watch'}">${esc(c.threat)}</span></td></tr>`).join('');
+      wrap.innerHTML = rows.length ? `<div class="table-scroll" role="region" aria-label="Competitor roster" tabindex="0"><table class="data-table"><caption class="sr-only">Latest competitors; original rank retained when sorted</caption><thead><tr><th scope="col">Compare</th><th scope="col">Rank</th><th scope="col">Company / evidence</th><th scope="col">UEI</th><th scope="col">5-yr obligations</th><th scope="col">Market signal</th><th scope="col">Threat</th></tr></thead><tbody>${body}</tbody></table></div>` : '<div class="empty-state"><p>No companies match these filters. Reset filters to see the full review.</p></div>';
+      wrap.innerHTML += '<h3 class="section-title">Compare competitors</h3><p class="workspace-note">Select up to three companies above. Selection is retained when you filter.</p><div id="comparison"></div>';
+      const selected = [...compared].map(i => latestReport.competitors[i]);
+      document.getElementById('comparison').innerHTML = selected.length ? `<div class="compare-grid">${selected.map(c => `<article class="evidence-card"><h3>${esc(c.name)}</h3><dl><dt>Public obligations</dt><dd>$${Number(c.amount).toLocaleString()}</dd><dt>Market signal (inference)</dt><dd>${esc(c.score)} / 100</dd><dt>Threat (inference)</dt><dd>${esc(c.threat)}</dd><dt>UEI</dt><dd>${esc(c.uei || 'Unavailable')}</dd></dl><p>${esc(c.evidence.fact)}</p>${sourceLink(c.evidence.url, c.evidence.source)}</article>`).join('')}</div><button class="export" id="clearComparison">Clear comparison</button>` : '<p class="workspace-note">No companies selected.</p>';
+      wrap.querySelectorAll('[data-compare]').forEach(el => el.addEventListener('change', () => { const id = Number(el.dataset.compare); if (el.checked && compared.size < 3) compared.add(id); else compared.delete(id); renderCompetitorsView(); wrap.querySelector(`[data-compare="${id}"]`)?.focus(); }));
+      document.getElementById('clearComparison')?.addEventListener('click', () => { compared.clear(); renderCompetitorsView(); document.getElementById('competitorSearch').focus(); });
+    }
+    ['competitorSearch','threatFilter','competitorSort'].forEach(id => document.getElementById(id).addEventListener(id === 'competitorSearch' ? 'input' : 'change', renderCompetitorsView));
+    document.getElementById('resetFilters').addEventListener('click', () => { resetRosterFilters(); renderCompetitorsView(); });
+
+    function renderEvidence() {
+      const wrap = document.getElementById('evidenceWrap');
+      if (!latestReport) { wrap.innerHTML = '<div class="empty-state"><p>Run a review to inspect its sources and reasoning.</p></div>'; return; }
+      const r = latestReport;
+      const sourceCards = r.evidence.sources.map(s => `<article class="evidence-card"><h3>${esc(s.name)}</h3><span class="badge ${s.status === 'connected' ? 'watch' : 'med'}">${esc(s.status)}</span><p>${esc(s.items)} ${s.name.includes('Model reasoning') ? 'reasoning outputs · not public records' : 'items reported by connector'}</p>${sourceLink(s.url, 'Source website')}</article>`).join('');
+      const group = (title, items, render) => `<section class="evidence-card"><h3>${title}</h3>${items.length ? `<ul>${items.map(item => `<li>${render(item)}</li>`).join('')}</ul>` : '<p>No records returned for this review. Check connector status above; absence is not proof of no activity.</p>'}</section>`;
+      wrap.innerHTML = `<p class="workspace-note"><strong>Search basis:</strong> ${r.meta.focusedSearch === true ? 'Opportunity-keyword search' : r.meta.focusedSearch === false ? 'Broader agency search; opportunity match was limited' : 'Search scope not provided'}${r.meta.keywords?.length ? ` · ${esc(r.meta.keywords.join(', '))}` : ''}. Public records do not confirm bid intent.</p><h3 class="section-title">Connector availability</h3><div class="evidence-grid">${sourceCards}</div><h3 class="section-title">Public records and references</h3><div class="evidence-grid">${group('Agency award facts', r.competitors, c => `<p>${esc(c.evidence.fact)}</p>${sourceLink(c.evidence.url, c.evidence.source)}`)}${group('SAM.gov notices', r.evidence.sam || [], item => `<p>${esc(item.title)} · ${esc(item.solicitationNumber || 'No solicitation number')} · ${esc(item.postedDate || 'Date unavailable')}</p>${sourceLink(item.url)}`)}${group('News references · contextual only', r.evidence.news || [], item => `<p>${esc(item.title)} · ${esc(item.source)} · ${esc(item.date || 'Date unavailable')}</p>${sourceLink(item.url)}`)}${group('SEC filings · contextual only', r.evidence.sec || [], item => `<p>${esc(item.company)} · ${esc(item.form || 'Filing')} · ${esc(item.filedAt || 'Date unavailable')}</p>${sourceLink(item.url)}`)}</div><h3 class="section-title">Strategic inferences</h3><p class="workspace-note">Strategist: ${r.meta.strategistMode === 'model' ? 'model-generated' : 'rule-based'} · Reviewer: ${r.meta.reviewerMode === 'model' ? 'model-generated' : 'rule-based'}. Confidence describes an inference, not source verification.</p><div class="evidence-grid">${r.strategies.map(s => `<article class="evidence-card"><h3>${esc(s.title)}</h3><span class="badge watch">Inference · ${esc(s.confidence)}% confidence</span><p>${esc(s.text)}</p><p>Basis: ${esc(s.basis)}</p></article>`).join('')}</div><section class="evidence-card"><h3>Review limitations</h3><ul>${r.limitations.map(item => `<li>${esc(item)}</li>`).join('')}</ul></section>`;
     }
 
     // ---- Win themes workboard ----
     const WORK_STATES = ['Not started', 'Drafting', 'Ready', "Won't use"];
+    function workRecord(value) { return typeof value === 'string' ? { status: value, owner: '', notes: '' } : value && typeof value === 'object' ? value : {}; }
     function renderWorkboard() {
       const wrap = document.getElementById('workboardWrap');
-      if (!latestReport || !latestReport.strategies.length) {
-        wrap.innerHTML = '<div class="empty-state"><p>Run a review from the cockpit to generate counter-strategies you can work here.</p></div>';
-        return;
-      }
-      const board = loadWorkboard();
+      const progress = document.getElementById('workboardProgress');
+      progress.textContent = '';
+      if (!latestReport || !latestReport.strategies.length) { wrap.innerHTML = '<div class="empty-state"><p>Run a review to generate counter-strategies you can work here.</p></div>'; return; }
       const key = opportunityKey(latestReport);
-      const record = board[key] || {};
-      wrap.innerHTML = `<div class="workboard-grid">${latestReport.strategies.map((s, i) => {
-        const status = record[s.title] || 'Not started';
-        const options = WORK_STATES.map(state => `<option value="${esc(state)}" ${state === status ? 'selected' : ''}>${esc(state)}</option>`).join('');
-        return `<div class="work-card"><h3>${i + 1}. ${esc(s.title)}</h3><p>${esc(s.text)}</p><div class="work-status"><label for="work-${i}">Status</label><select id="work-${i}" data-title="${esc(s.title)}">${options}</select></div></div>`;
+      const record = loadWorkboard()[key] || {};
+      const updateProgress = () => { const current = loadWorkboard()[key] || {}; progress.textContent = `${latestReport.strategies.filter(s => workRecord(current[s.title]).status === 'Ready').length} of ${latestReport.strategies.length} themes ready · ${workboardUnsaved ? 'Unsaved changes; kept in this tab until reload' : 'Saved in this browser'}`; };
+      wrap.innerHTML = `<div class="workboard-grid">${latestReport.strategies.map((s,i) => {
+        const item = workRecord(record[s.title]);
+        return `<article class="work-card"><h3>${i+1}. ${esc(s.title)}</h3><span class="badge watch">Inference · ${esc(s.confidence)}% confidence</span><p>${esc(s.text)}</p><p>Basis: ${esc(s.basis)}</p><div><label for="owner-${i}">Owner</label><input id="owner-${i}" data-field="owner" data-index="${i}" maxlength="120" value="${esc(item.owner || '')}" placeholder="Name or role"></div><div><label for="notes-${i}">Validation notes</label><textarea id="notes-${i}" data-field="notes" data-index="${i}" maxlength="2000" placeholder="Proof points to gather, assumptions to verify">${esc(item.notes || '')}</textarea></div><div class="work-status"><label for="work-${i}">Status</label><select id="work-${i}" data-field="status" data-index="${i}">${WORK_STATES.map(state => `<option ${state === (item.status || 'Not started') ? 'selected' : ''}>${esc(state)}</option>`).join('')}</select></div></article>`;
       }).join('')}</div>`;
-      wrap.querySelectorAll('select[data-title]').forEach(select => {
-        select.addEventListener('change', () => {
-          const board = loadWorkboard();
-          const key = opportunityKey(latestReport);
-          board[key] = board[key] || {};
-          board[key][select.dataset.title] = select.value;
-          saveJSON(WORKBOARD_KEY, board);
-        });
-      });
+      updateProgress();
+      wrap.querySelectorAll('[data-field]').forEach(el => el.addEventListener(el.tagName === 'SELECT' ? 'change' : 'input', () => {
+        const board = loadWorkboard();
+        const title = latestReport.strategies[Number(el.dataset.index)].title;
+        if (!board[key] || typeof board[key] !== 'object' || Array.isArray(board[key])) board[key] = {};
+        board[key][title] = { ...workRecord(board[key][title]), [el.dataset.field]: el.value };
+        workboardDraft = board;
+        workboardUnsaved = !saveJSON(WORKBOARD_KEY, board);
+        updateProgress();
+      }));
     }
 
     // ---- Past reviews (history) ----
@@ -438,11 +527,12 @@
         wrap.innerHTML = '<div class="empty-state"><p>No reviews yet. Completed live reviews are saved here automatically, in your browser only.</p></div>';
         return;
       }
-      const rows = history.map(entry => `<tr><td class="num">${new Date(entry.ts).toLocaleString()}</td><td>${esc(entry.opportunity)}</td><td>${esc(entry.agency)}</td><td><span class="badge ${entry.recommendation === 'Proceed' ? 'watch' : 'med'}">${esc(entry.recommendation)}</span></td><td class="num">${entry.winProbability}%</td><td><div class="history-row-actions"><button class="link-btn" data-reopen="${esc(entry.id)}">Reopen</button><button class="link-btn danger" data-remove="${esc(entry.id)}">Remove</button></div></td></tr>`).join('');
-      wrap.innerHTML = `<table class="data-table"><caption class="sr-only">Past locally-saved reviews</caption><thead><tr><th scope="col">When</th><th scope="col">Opportunity</th><th scope="col">Agency</th><th scope="col">Recommendation</th><th scope="col">Win probability</th><th scope="col">Actions</th></tr></thead><tbody>${rows}</tbody></table>`;
+      const rows = history.map(entry => `<tr><td class="num">${new Date(entry.ts).toLocaleString()}</td><td>${esc(entry.opportunity)}</td><td>${esc(entry.agency)}</td><td><span class="badge ${entry.recommendation === 'Proceed' ? 'watch' : 'med'}">${esc(entry.recommendation)}</span></td><td class="num">${entry.winProbability}%</td><td><div class="history-row-actions"><button class="link-btn" data-reopen="${esc(entry.id)}">Use inputs</button><button class="link-btn danger" data-remove="${esc(entry.id)}">Remove</button></div></td></tr>`).join('');
+      wrap.innerHTML = `<div class="table-scroll" role="region" aria-label="Past reviews" tabindex="0"><table class="data-table"><caption class="sr-only">Past locally-saved reviews</caption><thead><tr><th scope="col">When</th><th scope="col">Opportunity</th><th scope="col">Agency</th><th scope="col">Recommendation</th><th scope="col">Win probability</th><th scope="col">Actions</th></tr></thead><tbody>${rows}</tbody></table></div>`;
       wrap.querySelectorAll('[data-reopen]').forEach(btn => btn.addEventListener('click', () => {
         const entry = loadHistory().find(e => e.id === btn.dataset.reopen);
-        if (!entry) return;
+        if (!entry || researching) { if (researching) say('Wait for the current review to finish.'); return; }
+        resetReport();
         document.getElementById('opportunity').value = entry.opportunity;
         document.getElementById('agency').value = entry.agency;
         document.getElementById('incumbent').value = entry.incumbent || '';
@@ -456,20 +546,21 @@
       }));
     }
     document.getElementById('clearHistory').addEventListener('click', () => {
-      saveJSON(HISTORY_KEY, []);
+      if (!saveJSON(HISTORY_KEY, [])) return;
       renderHistory();
       say('Local review history cleared.');
     });
 
     // ---- Connector status (topbar icon button) ----
-    document.getElementById('connectorStatusBtn').addEventListener('click', () => {
-      if (!latestReport) { say('Run a live review to see connector status.'); return; }
-      say(latestReport.evidence.sources.map(s => `${s.name}: ${s.status}`).join(' · '));
-    });
+    document.getElementById('connectorStatusBtn').addEventListener('click', () => showView('evidence'));
 
     // ---- Main report rendering ----
     function renderReport(report) {
       latestReport = report;
+      compared.clear(); resetRosterFilters();
+      document.getElementById('reviewContext').innerHTML = `<strong>${esc(report.meta.opportunity)}</strong> · ${esc(report.meta.agency)}<br>Reviewed ${esc(new Date(report.meta.generatedAt).toLocaleString())} · ${esc(report.meta.mode)} · Bid intent unconfirmed`;
+      document.getElementById('researchStatus').textContent = 'Review complete';
+      ['exportBrief','exportMarkdown'].forEach(id => document.getElementById(id).disabled = false);
       const d = report.decision;
       document.getElementById('recommendation').textContent = d.recommendation;
       document.getElementById('recommendationNote').textContent = `${d.topThreats} high-threat rival${d.topThreats === 1 ? '' : 's'} detected`;
@@ -484,7 +575,7 @@
       document.getElementById('evidenceCount').textContent = `${d.evidenceCount} evidence items checked`;
       document.getElementById('dataMode').textContent = `Live ${report.meta.mode} · ${new Date(report.meta.generatedAt).toLocaleString()}`;
       document.getElementById('sourceHealth').textContent = 'Live research complete';
-      document.getElementById('landscapeFlag')?.remove();
+      document.getElementById('landscapeFlag').textContent = 'Market inference';
       const strategyFlag = document.getElementById('strategyFlag');
       if (strategyFlag) {
         const isModel = report.meta.strategistMode === 'model';
@@ -498,13 +589,13 @@
         summaryFlag.textContent = isModel ? 'Model-generated' : 'Rule-based';
         summaryFlag.classList.toggle('model', isModel);
       }
-      document.getElementById('competitorList').innerHTML = report.competitors.map((c, i) => `<div class="competitor"><div class="rank">${String(i + 1).padStart(2,'0')}</div><div class="company">${esc(c.name)}<span>${esc(c.evidence.fact)}</span></div><div><div class="mini-label">Market signal</div><div class="bar"><i style="width:${c.score}%"></i></div><div class="score">${c.score} / 100</div></div><div><div class="mini-label">Agency obligations</div><div class="bar green"><i style="width:${Math.min(100,c.score - 5)}%"></i></div><div class="score">${esc(c.amountLabel)}</div></div><span class="badge ${badgeClass[c.threat] || 'watch'}">${esc(c.threat)}</span><a class="chev" href="${esc(c.evidence.url)}" target="_blank" rel="noopener" aria-label="Open USAspending evidence">›</a></div>`).join('');
-      document.getElementById('strategyList').innerHTML = report.strategies.map((s, i) => `<div class="insight"><div class="insight-top"><h3>${i + 1}. ${esc(s.title)}</h3><span class="source">${s.confidence}% confidence</span></div><p>${esc(s.text)}</p><p class="demo-note">${esc(s.basis)}</p></div>`).join('');
+      document.getElementById('competitorList').innerHTML = report.competitors.map((c, i) => `<div class="competitor"><div class="rank">${String(i + 1).padStart(2,'0')}</div><div class="company">${esc(c.name)}<span>${esc(c.evidence.fact)}</span></div><div><div class="mini-label">Market signal</div><div class="bar"><i style="width:${c.score}%"></i></div><div class="score">${c.score} / 100</div></div><div><div class="mini-label">Obligations · relative</div><div class="bar green"><i style="width:${Math.max(0, 100 * c.amount / Math.max(1, ...report.competitors.map(item => item.amount)))}%"></i></div><div class="score">${esc(c.amountLabel)}</div></div><span class="badge ${badgeClass[c.threat] || 'watch'}">${esc(c.threat)}</span><a class="chev" href="${esc(safeURL(c.evidence.url) || '#')}" target="_blank" rel="noopener" aria-label="Open USAspending evidence">›</a></div>`).join('');
+      document.getElementById('strategyList').innerHTML = report.strategies.map((s, i) => `<div class="insight"><div class="insight-top"><h3>${i + 1}. ${esc(s.title)}</h3><span class="source">Inference · ${esc(s.confidence)}%</span></div><p>${esc(s.text)}</p><p class="demo-note">${esc(s.basis)}</p></div>`).join('');
       document.getElementById('caveatsList').innerHTML = report.limitations.map(item => `<li>${esc(item)}</li>`).join('');
       // Stage elements are already updated live by applyStageEvent() as the
       // stream arrives; by the time this 'result' event fires all four should
       // already read 'done'. This is just a safety net if any were missed.
-      stages.forEach((stage) => { if (!stage.classList.contains('done')) stage.className = 'stage done'; });
+      stages.forEach((stage, i) => { stage.className = 'stage done'; stage.textContent = `${AGENT_ORDER[i]} · Complete`; });
 
       const history = loadHistory();
       history.unshift({
@@ -514,6 +605,7 @@
       });
       saveJSON(HISTORY_KEY, history.slice(0, 25));
 
+      renderEvidence();
       if (document.querySelector('.view[data-view="competitors"]:not([hidden])')) renderCompetitorsView();
       if (document.querySelector('.view[data-view="themes"]:not([hidden])')) renderWorkboard();
       if (document.querySelector('.view[data-view="history"]:not([hidden])')) renderHistory();
@@ -525,13 +617,21 @@
       const idx = AGENT_ORDER.indexOf(event.agent);
       if (idx === -1) return;
       const el = stages[idx];
-      el.textContent = event.agent;
+      el.textContent = `${event.agent} · ${event.status === 'running' ? 'Running' : 'Complete'}`;
+      setRunStatus(`${event.agent}: ${event.detail || event.status}`);
       el.className = event.status === 'running' ? 'stage active pulse' : 'stage done';
     }
 
     run.addEventListener('click', async () => {
       const payload = { opportunity: document.getElementById('opportunity').value, agency: document.getElementById('agency').value, incumbent: document.getElementById('incumbent').value };
       if (!payload.opportunity.trim() || !payload.agency.trim()) { say('Enter an opportunity and agency first.'); return; }
+      resetReport();
+      researching = true;
+      document.querySelectorAll('.intake input').forEach(el => el.disabled = true);
+      document.getElementById('newReview').disabled = true;
+      document.getElementById('reviewContext').textContent = `Researching ${payload.opportunity} · ${payload.agency}`;
+      document.getElementById('researchStatus').textContent = 'Researching';
+      setRunStatus('Connecting to public sources…');
       run.disabled = true; run.textContent = 'Agents researching…';
       stages.forEach((s) => { s.className = 'stage'; });
       let gotResult = false;
@@ -560,15 +660,22 @@
           }
         }
         if (!gotResult) throw new Error('Research ended without a result. Please try again.');
+        setRunStatus('Review complete. Inspect evidence, compare competitors or develop win themes.');
         say('Live review complete — evidence and strategy are ready.');
       } catch (error) {
+        setRunStatus(error.message || 'Research failed. Please try again.', true);
+        document.getElementById('researchStatus').textContent = 'Review failed';
+        document.getElementById('reviewContext').textContent = `No completed report · ${payload.opportunity} · ${payload.agency}`;
         say(error.message || 'Research failed. Please try again.');
-        stages.forEach(s => s.classList.remove('pulse'));
+        stages.forEach(s => { if (s.classList.contains('active')) { s.className = 'stage'; s.textContent += ' · Stopped'; } });
       } finally {
+        researching = false;
+        document.querySelectorAll('.intake input').forEach(el => el.disabled = false);
+        document.getElementById('newReview').disabled = false;
         run.disabled = false; run.textContent = 'Run black hat';
       }
     });
-    document.getElementById('newReview').addEventListener('click', () => { document.querySelectorAll('input').forEach(x => x.value = ''); document.getElementById('opportunity').focus(); });
+    document.getElementById('newReview').addEventListener('click', () => { if (researching) return; resetReport(); showView('cockpit'); document.querySelectorAll('.intake input').forEach(x => x.value = ''); document.getElementById('opportunity').focus(); });
     document.getElementById('exportBrief').addEventListener('click', () => {
       if (!latestReport) { say('Run a live review before exporting.'); return; }
       const blob = new Blob([JSON.stringify(latestReport, null, 2)], {type:'application/json'});
@@ -584,14 +691,18 @@
       if (report.meta.incumbent) lines.push(`**Incumbent:** ${report.meta.incumbent}`);
       lines.push(`**Generated:** ${new Date(report.meta.generatedAt).toLocaleString()}`, '');
       lines.push('## Decision',
-        `- Recommendation: **${report.decision.recommendation}** (${report.decision.winProbability}% win probability)`,
-        `- Likely bidders: ${report.decision.bidderCount} (${report.decision.topThreats} high-threat)`,
+        `- Recommendation: **${report.decision.recommendation}** (${report.decision.winProbability}% heuristic win estimate; inference, not a forecast)`,
+        `- Ranked competitors (bid intent unconfirmed): ${report.decision.bidderCount} (${report.decision.topThreats} high-threat)`,
         `- Evidence strength: ${report.decision.evidenceStrength}% across ${report.decision.evidenceCount} items`, '');
-      lines.push('## Summary', report.summary, '');
+      lines.push(`Strategist: ${report.meta.strategistMode} · Reviewer: ${report.meta.reviewerMode}`, '', '## Summary', report.summary, '');
       lines.push('## Competitive landscape');
       report.competitors.forEach((c, i) => lines.push(`${i + 1}. **${c.name}** — ${c.threat}, market signal ${c.score}/100, ${c.amountLabel} in agency obligations. ${c.evidence.fact} (${c.evidence.url})`));
       lines.push('', '## How we win');
-      report.strategies.forEach((s, i) => lines.push(`${i + 1}. **${s.title}** (${s.confidence}% confidence — ${s.basis})\n   ${s.text}`));
+      report.strategies.forEach((s, i) => lines.push(`${i + 1}. **${s.title}** (Inference; ${s.confidence}% confidence — ${s.basis})\n   ${s.text}`));
+      lines.push('', '## Connector status');
+      report.evidence.sources.forEach(s => lines.push(`- ${s.name}: ${s.status}; ${s.items} reported items (${safeURL(s.url) || 'No public link'})`));
+      lines.push('', '## Public references');
+      [...(report.evidence.sam || []), ...(report.evidence.news || []), ...(report.evidence.sec || [])].forEach(item => lines.push(`- ${item.title || item.company || 'Reference'} · ${item.form || item.source || item.solicitationNumber || ''} · ${item.filedAt || item.postedDate || item.date || 'Date unavailable'} (${safeURL(item.url) || 'No public link'})`));
       lines.push('', '## Limitations');
       report.limitations.forEach((item) => lines.push(`- ${item}`));
       return lines.join('\n');
@@ -602,7 +713,8 @@
       const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = 'blackhat-gate-brief.md'; link.click(); URL.revokeObjectURL(link.href);
       say('Markdown gate-review brief exported.');
     });
-    document.getElementById('showRationale').addEventListener('click', () => say(latestReport ? `${latestReport.decision.evidenceCount} evidence items support this assessment.` : 'Run a live review to generate a traceable rationale.'));
+    document.getElementById('showRationale').addEventListener('click', () => showView('evidence'));
+    document.querySelectorAll('.intake input').forEach(el => el.addEventListener('input', () => { if (latestReport && !researching) resetReport(); }));
   </script>
 </body>
 </html>

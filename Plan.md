@@ -28,6 +28,14 @@ Make every decision inspectable: keep compact metrics for scanning, put source r
 - Desktop and narrow layouts contain tables without page overflow; existing palette/type/spacing tokens remain.
 - Run `git diff --check`, `npm run build`, `npm test`, client behavior verification, and publish to the same private Site.
 
+## Visual refresh (Purity UI reference)
+
+Prepared October 6, 2026 from the Purity UI Dashboard Figma file. The Figma node was a cover board of light, teal-accent screens, so only structural patterns were borrowed (KPI icon tiles, chart card, avatar tiles, inline progress bars, rail status card). The light theme, teal accent and large soft cards were rejected to keep the analyst-terminal system in `AGENTS.md`.
+
+Shipped: KPI icon tiles; real-data obligations bar chart; initials tiles; roster signal bars; nav icon tiles; rail connector-status card from `/api/health`; "Copy summary"; "Fill in a sample pursuit". Verified by 13 passing tests and headless-Chrome screenshots of the empty state and a fixture-populated state (fixture used only in a scratch copy, never in the repo). Mobile layout and keyboard flows were not visually verified.
+
+Candidate next steps: save full reports locally for history diffs, a threat-mix summary strip, and a printable brief view.
+
 ## Deferred
 
 Cross-device collaboration, full historical snapshots/diffs, background campaigns and document uploads need deliberate persistence/privacy design and are outside this interface iteration. No new connectors, dependencies, secret handling or fabricated evidence.

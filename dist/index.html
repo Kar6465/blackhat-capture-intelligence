@@ -68,9 +68,15 @@
     .nav-item { width: 100%; border: 0; border-left: 2px solid transparent; background: transparent; color: var(--muted); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; padding: var(--sp-2) var(--sp-3); display: flex; align-items: center; gap: var(--sp-2); text-align: left; font-size: var(--fs-3); transition: background-color 120ms ease-out, color 120ms ease-out, border-color 120ms ease-out; }
     .nav-item.active { background: #12161c; color: var(--text); border-left-color: var(--accent); }
     .nav-item:not(.active):hover { color: var(--text); background: #0f1217; }
-    .nav-item svg { width: 16px; height: 16px; stroke-width: 1.5; flex: none; }
-    .rail-foot { margin-top: auto; padding: var(--sp-3) var(--sp-2) 0; border-top: 1px solid var(--line-soft); color: var(--muted-dim); font-family: var(--font-mono); font-size: var(--fs-1); line-height: 1.6; }
-    .rail-foot strong { color: var(--good); font-weight: 600; }
+    .nav-item svg { width: 26px; height: 26px; padding: 5px; stroke-width: 1.5; flex: none; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--panel); transition: border-color 120ms ease-out, color 120ms ease-out; }
+    .nav-item.active svg { color: var(--text); border-color: #333b46; }
+    .rail-foot { margin-top: auto; padding: var(--sp-3); border: 1px solid var(--line); border-radius: var(--radius); background: var(--panel); color: var(--muted-dim); font-family: var(--font-mono); font-size: var(--fs-1); line-height: 1.6; }
+    .rail-foot-title { color: var(--good); font-weight: 600; margin-bottom: var(--sp-2); }
+    .conn-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--sp-1); }
+    .conn-list li { display: flex; justify-content: space-between; gap: var(--sp-2); }
+    .conn-list b { font-weight: 600; color: var(--muted); }
+    .conn-list b[data-on="true"] { color: var(--good); }
+    .rail-version { margin-top: var(--sp-2); padding-top: var(--sp-2); border-top: 1px solid var(--line-soft); }
     main { min-width: 0; }
     .topbar { isolation: isolate; height: 56px; padding: 0 var(--sp-7); display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); background: var(--bg); position: sticky; top: 0; z-index: 5; }
     .crumb { color: var(--muted); font-family: var(--font-mono); font-size: var(--fs-2); }
@@ -104,7 +110,10 @@
     .stage.active::before { background: var(--accent); }
     .arrow { color: #2a303a; font-size: var(--fs-1); }
     .summary-grid { display: grid; grid-template-columns: 1.35fr .8fr .8fr .8fr; gap: var(--sp-3); margin-bottom: var(--sp-6); }
-    .metric { border: 1px solid var(--line); background: var(--panel); border-radius: var(--radius); padding: var(--sp-4); min-height: 96px; }
+    .metric { border: 1px solid var(--line); background: var(--panel); border-radius: var(--radius); padding: var(--sp-4); min-height: 96px; box-shadow: inset 0 1px 0 rgba(255,255,255,.03); }
+    .metric-head { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3); margin-bottom: var(--sp-3); }
+    .metric-head .metric-label { margin-bottom: 0; }
+    .metric-icon { width: 28px; height: 28px; flex: none; padding: 6px; stroke-width: 1.5; color: var(--muted); border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--bg); }
     .metric-primary { background: var(--panel-2); border-left: 2px solid var(--accent); }
     .metric-label { color: var(--muted); font-family: var(--font-mono); font-size: var(--fs-2); text-transform: uppercase; letter-spacing: .04em; margin-bottom: var(--sp-3); }
     .metric-value { font-family: var(--font-mono); font-size: var(--fs-5); font-weight: 650; letter-spacing: -.01em; font-variant-numeric: tabular-nums; }
@@ -122,7 +131,7 @@
         conic-gradient(var(--ring-color) calc(var(--pct) * 1%), var(--line) 0);
     }
     .two-col { display: grid; grid-template-columns: minmax(0,1.55fr) minmax(300px,.8fr); gap: var(--sp-4); }
-    .card { border: 1px solid var(--line); background: var(--panel); border-radius: var(--radius); overflow: hidden; }
+    .card { border: 1px solid var(--line); background: var(--panel); border-radius: var(--radius); overflow: hidden; box-shadow: inset 0 1px 0 rgba(255,255,255,.03); }
     .card-head { padding: var(--sp-3) var(--sp-4); border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; gap: var(--sp-2); flex-wrap: wrap; }
     .card-head-text { display: flex; align-items: center; gap: var(--sp-2); flex-wrap: wrap; }
     .card-title { font-weight: 650; font-size: var(--fs-4); }
@@ -132,6 +141,8 @@
     .competitor { padding: var(--sp-4); border-bottom: 1px solid var(--line-soft); display: grid; grid-template-columns: 40px minmax(150px,1.2fr) .9fr .9fr 100px 20px; gap: var(--sp-3); align-items: center; transition: background-color 150ms ease-out; }
     .competitor:hover { background: var(--panel-2); }
     .competitor:last-child { border-bottom: 0; }
+    .company-cell { display: flex; align-items: center; gap: var(--sp-3); min-width: 0; }
+    .avatar { width: 32px; height: 32px; flex: none; display: grid; place-items: center; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--panel-2); color: var(--muted); font-family: var(--font-mono); font-size: var(--fs-1); font-weight: 600; }
     .rank { width: 32px; height: 32px; border: 1px solid var(--line); background: var(--bg); border-radius: var(--radius-sm); display: grid; place-items: center; color: var(--muted); font-family: var(--font-mono); font-size: var(--fs-2); font-weight: 600; }
     .company { font-weight: 600; font-size: var(--fs-4); }
     .company span { display: block; color: var(--muted); font-size: var(--fs-2); font-weight: 400; margin-top: var(--sp-1); }
@@ -163,6 +174,17 @@
     .caveats h2 { margin: 0 0 var(--sp-3); font-size: var(--fs-3); font-weight: 650; }
     .caveats ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: var(--sp-2); }
     .caveats li { font-size: var(--fs-3); color: var(--muted); line-height: 1.55; padding-left: var(--sp-3); border-left: 2px solid var(--line); }
+    .chart-card { margin-bottom: var(--sp-4); }
+    .oblig { list-style: none; margin: 0; padding: var(--sp-2) var(--sp-4) var(--sp-4); display: flex; flex-direction: column; gap: var(--sp-3); }
+    .oblig li { display: grid; grid-template-columns: minmax(120px, 220px) minmax(0, 1fr) 84px; gap: var(--sp-3); align-items: center; font-size: var(--fs-3); }
+    .oblig-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .oblig-track { height: 10px; border-radius: 2px; background: var(--line-soft); overflow: hidden; }
+    .oblig-track i { display: block; height: 100%; background: var(--seq-1); border-radius: inherit; }
+    .oblig-val { font-family: var(--font-mono); font-size: var(--fs-2); color: var(--muted); text-align: right; font-variant-numeric: tabular-nums; }
+    .chart-note { margin: 0; padding: 0 var(--sp-4) var(--sp-4); color: var(--muted-dim); font-family: var(--font-mono); font-size: var(--fs-1); }
+    .mini-bar { height: 4px; width: 96px; border-radius: 2px; background: var(--line); overflow: hidden; margin-bottom: 5px; }
+    .mini-bar i { display: block; height: 100%; background: var(--seq-1); border-radius: inherit; }
+    .intake-hint { color: var(--muted-dim); font-family: var(--font-mono); font-size: var(--fs-1); margin: var(--sp-3) 0 0; }
     .toast { isolation: isolate; position: fixed; right: 22px; bottom: 22px; background: #eef1f4; color: #14171b; border-radius: var(--radius-sm); padding: 11px 14px; font-size: var(--fs-3); font-weight: 550; transform: translateY(80px); opacity: 0; box-shadow: 0 10px 30px rgba(0,0,0,.35); transition: transform 200ms ease-out, opacity 200ms ease-out; max-width: 380px; }
     .toast.show { transform: translateY(0); opacity: 1; }
     .pulse { animation: pulse .9s infinite alternate; }
@@ -247,6 +269,8 @@
       .summary-grid { grid-template-columns: 1fr 1fr; }
       .competitor { grid-template-columns: 34px 1fr 88px 18px; }
       .competitor > :nth-child(3), .competitor > :nth-child(4) { display: none; }
+      .oblig li { grid-template-columns: minmax(0, 1fr) 76px; }
+      .oblig-track { grid-column: 1 / -1; grid-row: 2; }
       .badge { justify-self: end; }
     }
     @media (max-width: 480px) {
@@ -266,7 +290,7 @@
       <button class="nav-item" data-view="themes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 19h16M6 16l4-5 3 2 5-7"/></svg>Win themes</button>
       <div class="nav-label">Library</div>
       <button class="nav-item" data-view="history"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 3h11l3 3v15H5zM8 10h8M8 14h8M8 18h5"/></svg>Past reviews</button>
-      <div class="rail-foot"><strong id="sourceHealth">Live research ready</strong><br>USAspending · SAM.gov · GDELT</div>
+      <div class="rail-foot"><div class="rail-foot-title" id="sourceHealth">Live research ready</div><ul class="conn-list" aria-label="Connector configuration"><li><span>USAspending</span><b data-on="true">Public</b></li><li><span>GDELT · EDGAR</span><b data-on="true">Public</b></li><li><span>SAM.gov</span><b id="connSam">Checking</b></li><li><span>Model</span><b id="connModel">Checking</b></li></ul><div class="rail-version" id="appVersion">Build —</div></div>
     </aside>
     <main>
       <header class="topbar">
@@ -288,6 +312,7 @@
             <div><label for="incumbent">Known incumbent</label><input id="incumbent" placeholder="Optional company name" maxlength="160" /></div>
             <button class="run-btn" id="runReview">Run black hat</button>
           </section>
+          <p class="intake-hint">New here? <button type="button" class="link-btn" id="fillExample">Fill in a sample pursuit</button> — only fills the fields; nothing runs until you press Run.</p>
 
           <div class="pipeline" aria-label="Research stages">
             <span class="stage">Opportunity Analyst</span><span class="arrow">›</span>
@@ -299,14 +324,19 @@
           <div class="run-status" id="runStatus" role="status" aria-live="polite">Ready. Enter an opportunity and agency to research public records.</div>
 
           <section class="summary-grid" aria-label="Decision summary">
-            <div class="metric metric-primary"><div class="metric-label">Recommendation</div><div class="recommend"><div class="go-ring" id="bidRing" style="--pct:0">—</div><div><div class="metric-value" id="recommendation">Awaiting review</div><div class="metric-note" id="recommendationNote">No assessment yet</div></div></div></div>
-            <div class="metric"><div class="metric-label">Win probability</div><div class="metric-value" id="winProbability">—</div><div class="metric-note">Heuristic inference · not a forecast</div></div>
-            <div class="metric"><div class="metric-label">Ranked competitors</div><div class="metric-value" id="bidderCount">—</div><div class="metric-note" id="threatCount">Bid intent unconfirmed</div></div>
-            <div class="metric"><div class="metric-label">Evidence strength</div><div class="metric-value" id="evidenceStrength">—</div><div class="metric-note" id="evidenceCount">No evidence collected</div></div>
+            <div class="metric metric-primary"><div class="metric-head"><div class="metric-label">Recommendation</div><svg class="metric-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M5 12l4 4 10-10"/></svg></div><div class="recommend"><div class="go-ring" id="bidRing" style="--pct:0">—</div><div><div class="metric-value" id="recommendation">Awaiting review</div><div class="metric-note" id="recommendationNote">No assessment yet</div></div></div></div>
+            <div class="metric"><div class="metric-head"><div class="metric-label">Win probability</div><svg class="metric-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M4 19h16M6 16l4-5 3 2 5-7"/></svg></div><div class="metric-value" id="winProbability">—</div><div class="metric-note">Heuristic inference · not a forecast</div></div>
+            <div class="metric"><div class="metric-head"><div class="metric-label">Ranked competitors</div><svg class="metric-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M4 19V8l8-4 8 4v11M8 19v-5h8v5"/></svg></div><div class="metric-value" id="bidderCount">—</div><div class="metric-note" id="threatCount">Bid intent unconfirmed</div></div>
+            <div class="metric"><div class="metric-head"><div class="metric-label">Evidence strength</div><svg class="metric-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M5 3h14v18H5zM8 8h8M8 12h8M8 16h5"/></svg></div><div class="metric-value" id="evidenceStrength">—</div><div class="metric-note" id="evidenceCount">No evidence collected</div></div>
+          </section>
+
+          <section class="card chart-card" aria-labelledby="obligTitle">
+            <div class="card-head"><div class="card-head-text"><div class="card-title" id="obligTitle">Agency obligations by competitor</div></div><div class="card-meta">Five-year public award dollars</div></div>
+            <div id="obligChart"><div class="empty-state"><p>A bar comparison of each ranked company's public obligations appears here after a live review.</p></div></div>
           </section>
 
           <section class="card summary-card">
-            <div class="card-head"><div class="card-head-text"><div class="card-title">Gate-review summary</div><span class="flag" id="summaryFlag">Awaiting review</span></div><div class="card-meta">Evidence-bound narrative</div></div>
+            <div class="card-head"><div class="card-head-text"><div class="card-title">Gate-review summary</div><span class="flag" id="summaryFlag">Awaiting review</span></div><div class="card-meta"><button class="export" id="copySummary" disabled>Copy summary</button></div></div>
             <p class="summary-body" id="summaryText">Run a live review to generate an evidence-bound summary of the competitive picture, written from the same evidence shown below.</p>
           </section>
 
@@ -391,6 +421,7 @@
     const compared = new Set();
     const emptyCompetitors = document.getElementById('competitorList').innerHTML;
     const emptyStrategies = document.getElementById('strategyList').innerHTML;
+    const emptyOblig = document.getElementById('obligChart').innerHTML;
     const initialLimitations = document.getElementById('caveatsList').innerHTML;
     function safeURL(value) { try { const url = new URL(value); return ['http:', 'https:'].includes(url.protocol) ? url.href : ''; } catch (_) { return ''; } }
     function sourceLink(url, label = 'Open source') { const safe = safeURL(url); return safe ? `<a href="${esc(safe)}" target="_blank" rel="noopener noreferrer">${esc(label)}</a>` : '<span>No public link available</span>'; }
@@ -407,6 +438,8 @@
       document.getElementById('bidRing').style.setProperty('--pct', 0);
       document.getElementById('competitorList').innerHTML = emptyCompetitors;
       document.getElementById('strategyList').innerHTML = emptyStrategies;
+      document.getElementById('obligChart').innerHTML = emptyOblig;
+      document.getElementById('copySummary').disabled = true;
       document.getElementById('summaryText').textContent = 'Run a live review to generate an evidence-bound summary.';
       ['strategyFlag','summaryFlag'].forEach(id => { const el = document.getElementById(id); el.textContent = 'Awaiting review'; el.classList.remove('model'); });
       document.getElementById('landscapeFlag').textContent = 'Awaiting review';
@@ -420,6 +453,12 @@
       setRunStatus('Ready. Enter an opportunity and agency to research public records.');
     }
 
+    function initials(name) { return String(name ?? '').split(/[\s,.&-]+/).filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase() || '?'; }
+    function renderObligations(report) {
+      const max = Math.max(1, ...report.competitors.map(c => Number(c.amount) || 0));
+      const rows = report.competitors.map(c => { const pct = Number(c.amount) > 0 ? Math.max(2, 100 * c.amount / max) : 0; return `<li><span class="oblig-name" title="${esc(c.name)}">${esc(c.name)}</span><span class="oblig-track" aria-hidden="true"><i style="width:${pct}%"></i></span><span class="oblig-val">${esc(c.amountLabel)}</span></li>`; }).join('');
+      return `<ol class="oblig" aria-label="Public obligations by competitor, highest ranked first">${rows}</ol><p class="chart-note">Observed award dollars to the selected agency, not a prediction. Bars are scaled to the largest value shown.</p>`;
+    }
     function esc(value) { return String(value ?? '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
     function say(message) { toast.textContent = message; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 3200); }
 
@@ -472,7 +511,7 @@
       if (!latestReport) { wrap.innerHTML = '<div class="empty-state"><p>Run a review from the cockpit to populate the competitor roster.</p></div>'; return; }
       const rows = filteredCompetitors(latestReport, document.getElementById('competitorSearch').value, document.getElementById('threatFilter').value, document.getElementById('competitorSort').value);
       document.getElementById('rosterCount').textContent = `${rows.length} of ${latestReport.competitors.length} companies · ${compared.size} selected for comparison (up to 3). Rankings and threats are inferences; bid intent is unconfirmed.`;
-      const body = rows.map(c => `<tr><td><input type="checkbox" data-compare="${c.rank}" aria-label="Compare ${esc(c.name)}" ${compared.has(c.rank) ? 'checked' : ''} ${compared.size >= 3 && !compared.has(c.rank) ? 'disabled' : ''}></td><td class="num">${String(c.rank+1).padStart(2,'0')}</td><td>${esc(c.name)}<details><summary>Public evidence</summary><p>${esc(c.evidence.fact)}</p>${sourceLink(c.evidence.url, c.evidence.source)}</details></td><td class="num">${esc(c.uei || '—')}</td><td class="num">$${Number(c.amount).toLocaleString()}</td><td class="num">${esc(c.score)} / 100</td><td><span class="badge ${badgeClass[c.threat] || 'watch'}">${esc(c.threat)}</span></td></tr>`).join('');
+      const body = rows.map(c => `<tr><td><input type="checkbox" data-compare="${c.rank}" aria-label="Compare ${esc(c.name)}" ${compared.has(c.rank) ? 'checked' : ''} ${compared.size >= 3 && !compared.has(c.rank) ? 'disabled' : ''}></td><td class="num">${String(c.rank+1).padStart(2,'0')}</td><td>${esc(c.name)}<details><summary>Public evidence</summary><p>${esc(c.evidence.fact)}</p>${sourceLink(c.evidence.url, c.evidence.source)}</details></td><td class="num">${esc(c.uei || '—')}</td><td class="num">$${Number(c.amount).toLocaleString()}</td><td class="num"><div class="mini-bar" aria-hidden="true"><i style="width:${Number(c.score) || 0}%"></i></div>${esc(c.score)} / 100</td><td><span class="badge ${badgeClass[c.threat] || 'watch'}">${esc(c.threat)}</span></td></tr>`).join('');
       wrap.innerHTML = rows.length ? `<div class="table-scroll" role="region" aria-label="Competitor roster" tabindex="0"><table class="data-table"><caption class="sr-only">Latest competitors; original rank retained when sorted</caption><thead><tr><th scope="col">Compare</th><th scope="col">Rank</th><th scope="col">Company / evidence</th><th scope="col">UEI</th><th scope="col">5-yr obligations</th><th scope="col">Market signal</th><th scope="col">Threat</th></tr></thead><tbody>${body}</tbody></table></div>` : '<div class="empty-state"><p>No companies match these filters. Reset filters to see the full review.</p></div>';
       wrap.innerHTML += '<h3 class="section-title">Compare competitors</h3><p class="workspace-note">Select up to three companies above. Selection is retained when you filter.</p><div id="comparison"></div>';
       const selected = [...compared].map(i => latestReport.competitors[i]);
@@ -589,7 +628,9 @@
         summaryFlag.textContent = isModel ? 'Model-generated' : 'Rule-based';
         summaryFlag.classList.toggle('model', isModel);
       }
-      document.getElementById('competitorList').innerHTML = report.competitors.map((c, i) => `<div class="competitor"><div class="rank">${String(i + 1).padStart(2,'0')}</div><div class="company">${esc(c.name)}<span>${esc(c.evidence.fact)}</span></div><div><div class="mini-label">Market signal</div><div class="bar"><i style="width:${c.score}%"></i></div><div class="score">${c.score} / 100</div></div><div><div class="mini-label">Obligations · relative</div><div class="bar green"><i style="width:${Math.max(0, 100 * c.amount / Math.max(1, ...report.competitors.map(item => item.amount)))}%"></i></div><div class="score">${esc(c.amountLabel)}</div></div><span class="badge ${badgeClass[c.threat] || 'watch'}">${esc(c.threat)}</span><a class="chev" href="${esc(safeURL(c.evidence.url) || '#')}" target="_blank" rel="noopener" aria-label="Open USAspending evidence">›</a></div>`).join('');
+      document.getElementById('competitorList').innerHTML = report.competitors.map((c, i) => `<div class="competitor"><div class="rank">${String(i + 1).padStart(2,'0')}</div><div class="company-cell"><span class="avatar" aria-hidden="true">${esc(initials(c.name))}</span><div class="company">${esc(c.name)}<span>${esc(c.evidence.fact)}</span></div></div><div><div class="mini-label">Market signal</div><div class="bar"><i style="width:${c.score}%"></i></div><div class="score">${c.score} / 100</div></div><div><div class="mini-label">Obligations · relative</div><div class="bar green"><i style="width:${Math.max(0, 100 * c.amount / Math.max(1, ...report.competitors.map(item => item.amount)))}%"></i></div><div class="score">${esc(c.amountLabel)}</div></div><span class="badge ${badgeClass[c.threat] || 'watch'}">${esc(c.threat)}</span><a class="chev" href="${esc(safeURL(c.evidence.url) || '#')}" target="_blank" rel="noopener" aria-label="Open USAspending evidence">›</a></div>`).join('');
+      document.getElementById('obligChart').innerHTML = renderObligations(report);
+      document.getElementById('copySummary').disabled = false;
       document.getElementById('strategyList').innerHTML = report.strategies.map((s, i) => `<div class="insight"><div class="insight-top"><h3>${i + 1}. ${esc(s.title)}</h3><span class="source">Inference · ${esc(s.confidence)}%</span></div><p>${esc(s.text)}</p><p class="demo-note">${esc(s.basis)}</p></div>`).join('');
       document.getElementById('caveatsList').innerHTML = report.limitations.map(item => `<li>${esc(item)}</li>`).join('');
       // Stage elements are already updated live by applyStageEvent() as the
@@ -713,6 +754,31 @@
       const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = 'blackhat-gate-brief.md'; link.click(); URL.revokeObjectURL(link.href);
       say('Markdown gate-review brief exported.');
     });
+    document.getElementById('fillExample').addEventListener('click', () => {
+      if (researching) { say('Wait for the current review to finish.'); return; }
+      if (latestReport) resetReport();
+      document.getElementById('opportunity').value = 'Enterprise IT modernization and cloud migration support';
+      document.getElementById('agency').value = 'Department of Veterans Affairs';
+      document.getElementById('incumbent').value = '';
+      document.getElementById('runReview').focus();
+    });
+    document.getElementById('copySummary').addEventListener('click', async () => {
+      if (!latestReport) return;
+      try { await navigator.clipboard.writeText(latestReport.summary); say('Gate-review summary copied.'); } catch (_) { say('Could not copy. Select the summary text instead.'); }
+    });
+    // Connector configuration comes from the real /api/health response.
+    function setConn(id, on) { const el = document.getElementById(id); el.textContent = on === true ? 'Key set' : on === false ? 'No key' : 'Unknown'; el.dataset.on = String(on === true); }
+    async function loadHealth() {
+      if (typeof fetch !== 'function') return;
+      try {
+        const response = await fetch('/api/health');
+        if (!response.ok) throw new Error('health');
+        const h = await response.json();
+        setConn('connSam', h.samConfigured); setConn('connModel', h.modelConfigured);
+        document.getElementById('appVersion').textContent = `Build ${h.version ?? '—'}`;
+      } catch (_) { setConn('connSam'); setConn('connModel'); }
+    }
+    loadHealth();
     document.getElementById('showRationale').addEventListener('click', () => showView('evidence'));
     document.querySelectorAll('.intake input').forEach(el => el.addEventListener('input', () => { if (latestReport && !researching) resetReport(); }));
   </script>

@@ -58,7 +58,10 @@ did. The UI discloses which path actually ran for a given result.
 ## Cockpit workflows
 
 The cockpit starts without illustrative results. Run a review to populate the decision, competitors,
-strategies and evidence. Persistent progress and error details reflect the server's real stages.
+strategies and evidence. "Fill in a sample pursuit" only pre-fills the intake fields; it never runs a review.
+
+- **Review cockpit:** KPI tiles, a bar chart of each ranked company's public obligations, the gate-review summary (with a copy button), competitor rows with initials tiles, and counter-strategies.
+- **Sidebar status card:** shows which optional connectors (SAM.gov, model) have keys configured, read live from `GET /api/health`, plus the build version. Persistent progress and error details reflect the server's real stages.
 
 - **Competitors:** search by company or UEI, filter threats, sort, inspect source facts and compare up to three companies. Original rank is retained.
 - **Evidence:** inspect connector availability, recipient facts, SAM notices, news, SEC filings, inference basis and limitations.

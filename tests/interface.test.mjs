@@ -75,3 +75,20 @@ test('completed reports expose records and inference provenance, and both export
   assert.match(markdown, /SAM.gov: rate limited/);
   assert.match(markdown, /Bid intent unconfirmed/);
 });
+
+test('obligations chart and monograms are bound to report data and escape names', () => {
+  const c = client();
+  assert.equal(c.run("initials('Booz Allen Hamilton Inc.')"), 'BA');
+  assert.equal(c.run("initials('')"), '?');
+  const html = c.run("renderObligations({competitors:[{name:'<b>Big</b>',amount:100,amountLabel:'$100'},{name:'Small',amount:25,amountLabel:'$25'},{name:'None',amount:0,amountLabel:'$0'}]})");
+  assert.match(html, /&lt;b&gt;Big/);
+  assert.match(html, /width:100%/);
+  assert.match(html, /width:25%/);
+  assert.match(html, /width:0%/);
+});
+
+test('sample pursuit only fills fields and never starts a run', () => {
+  const html2 = readFileSync(new URL('../dist/index.html', import.meta.url), 'utf8');
+  assert.match(html2, /id="fillExample"/);
+  assert.doesNotMatch(html2.match(/getElementById\('fillExample'\)[\s\S]*?\}\);/)[0], /fetch\(|\.click\(\)/);
+});
